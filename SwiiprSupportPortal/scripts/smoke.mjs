@@ -33,6 +33,15 @@ for (const [width, collapsedState] of [[1280, null], [1280, 'collapsed'], [390, 
     if (content && width >= 992 && side && content.x < side.width) fail(`${tag}: content overlaps sidebar`);
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     if (overflow > 0) fail(`${tag}: horizontal overflow ${overflow}px`);
+    if (p === '') {
+      const car = await box('.carousel');
+      if (!car || car.width < 200 || car.height < 100) fail(`${tag}: carousel missing/collapsed`);
+      const n = await page.locator('.car-slide').count();
+      if (n < 3) fail(`${tag}: expected >=3 slides, got ${n}`);
+      await page.click('.car-btn.next');
+      const on = await page.locator('.car-slide.on').getAttribute('data-i');
+      if (on !== '1') fail(`${tag}: next button did not advance (on=${on})`);
+    }
     if (!collapsedState && outDir) await page.screenshot({ path: `${outDir}/${p.replace('.html', '') || 'home'}-${width}.png` });
   }
   if (errors.length) fail(`page errors @${width}: ${errors.join('; ')}`);

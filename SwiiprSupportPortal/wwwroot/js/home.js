@@ -1,4 +1,8 @@
-import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104c';
+import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104d';
+import { mountCarousel } from './carousel.js?v=20261104d';
+
+const carouselRoot = document.getElementById('flight-carousel');
+if (carouselRoot) mountCarousel(carouselRoot);
 
 // B2C redirects back to the configured redirect URI (the site root); forward the auth response to the page that started sign-in.
 if (/[#?&](code|error|state)=/.test(location.hash)) {

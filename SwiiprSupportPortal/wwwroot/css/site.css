@@ -166,3 +166,22 @@ a.task-card:hover { border-top-color: var(--teal); box-shadow: 0 3px 10px rgba(3
   .session-clock { font-size: .78rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Dashboard flight carousel */
+.carousel{position:relative;aspect-ratio:21/8;border-radius:6px;overflow:hidden;background:#1d3557;box-shadow:0 1px 3px rgba(0,0,0,.15);margin-bottom:1.25rem}
+.car-stage,.car-slide{position:absolute;inset:0;margin:0}
+.car-slide{opacity:0;transition:opacity .8s ease;pointer-events:none}
+.car-slide.on{opacity:1;pointer-events:auto}
+.car-slide svg{width:100%;height:100%;display:block}
+.car-slide figcaption{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 1.5rem 2.6rem;color:#fff;background:linear-gradient(to top,rgba(10,20,40,.72),rgba(10,20,40,0));display:flex;flex-direction:column;gap:.15rem}
+.car-slide figcaption strong{font-size:1.35rem;font-weight:600}
+.car-slide figcaption span{font-size:.95rem;opacity:.9}
+.car-btn{position:absolute;top:50%;transform:translateY(-50%);width:2.5rem;height:2.5rem;border:0;border-radius:50%;background:rgba(255,255,255,.85);color:#1f2937;cursor:pointer;font-size:1rem}
+.car-btn:hover{background:#fff}.car-btn.prev{left:.75rem}.car-btn.next{right:.75rem}
+.car-btn:focus-visible,.car-dots button:focus-visible{outline:3px solid #0f8b8d;outline-offset:2px}
+.car-dots{position:absolute;left:0;right:0;bottom:.75rem;display:flex;justify-content:center;gap:.5rem}
+.car-dots button{width:.7rem;height:.7rem;padding:0;border-radius:50%;border:1px solid #fff;background:transparent;cursor:pointer}
+.car-dots button[aria-selected="true"]{background:#fff}
+.car-credit{position:absolute;right:.75rem;bottom:.5rem;font-size:.72rem;color:rgba(255,255,255,.75)}
+@media (max-width:768px){.carousel{aspect-ratio:16/9}.car-slide figcaption strong{font-size:1.05rem}.car-slide figcaption span{display:none}.car-credit{display:none}}
+@media (prefers-reduced-motion:reduce){.car-slide{transition:none}}
