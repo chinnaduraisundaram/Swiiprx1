@@ -1,8 +1,8 @@
 const $ = (id) => document.getElementById(id);
-import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js';
-import { setUser, setSessionClock } from './layout.js';
-import { sessionSettings, startSessionTimer, formatMmSs } from './session.js';
-import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js';
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js?v=20261104';
+import { setUser, setSessionClock } from './layout.js?v=20261104';
+import { sessionSettings, startSessionTimer, formatMmSs } from './session.js?v=20261104';
+import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js?v=20261104';
 
 const BALANCE = document.body.dataset.mode === 'balance';
 const ENDPOINT = BALANCE ? 'balance' : 'transactions';

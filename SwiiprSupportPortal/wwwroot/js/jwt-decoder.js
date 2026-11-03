@@ -1,4 +1,4 @@
-import { decodeJwt, formatDuration } from './utils.js';
+import { decodeJwt, formatDuration } from './utils.js?v=20261104';
 
 const $ = (id) => document.getElementById(id);
 let timer;

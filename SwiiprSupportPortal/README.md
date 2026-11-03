@@ -81,3 +81,7 @@ The platform response schema was not available, so the mapper is tolerant: it re
 ## Layout
 
 The portal uses a shared shell (`wwwroot/js/layout.js` + `css/site.css` design tokens): a left sidebar built from the task registry (`js/tasks.js`; add a task there and it appears in the sidebar and dashboard), and a dark top bar with the session countdown, user chip (B2C account or JWT name/email claim, else 'Support Engineer') and sign in/out.
+
+### Layout smoke test
+
+`npm i --no-save playwright-core` then `node scripts/smoke.mjs chrome` (or `msedge`) with the app running. Static files are served with `Cache-Control: no-cache` and asset URLs carry `?v=<version>`; bump it in the HTML/JS imports when shipping breaking front-end changes.

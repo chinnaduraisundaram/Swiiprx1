@@ -13,7 +13,11 @@ builder.Services.AddHttpClient("platform", (sp, client) =>
 
 var app = builder.Build();
 app.UseDefaultFiles();
-app.UseStaticFiles();
+// no-cache = always revalidate (ETag), so browsers never run a stale mix of old JS and new CSS.
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache"
+});
 
 // Only public MSAL settings are exposed; there are no secrets in this app.
 app.MapGet("/api/config", (IConfiguration config) =>
