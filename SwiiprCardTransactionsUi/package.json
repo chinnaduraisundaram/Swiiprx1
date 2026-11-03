@@ -1,0 +1,12 @@
+{
+  "name": "swiipr-card-transactions-ui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Front-end dependencies (MSAL browser) for SwiiprCardTransactionsUi",
+  "scripts": {
+    "postinstall": "node scripts/copy-msal.mjs"
+  },
+  "dependencies": {
+    "@azure/msal-browser": "^5.0.0"
+  }
+}

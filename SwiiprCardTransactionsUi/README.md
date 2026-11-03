@@ -1,0 +1,61 @@
+# SwiiprX card transactions export (web UI)
+
+Small ASP.NET Core (.NET 10) app + static front-end. You sign in with Azure AD B2C (MSAL browser, auth-code + PKCE), paste/upload card tokens, and it calls the SwiiprX platform endpoint
+`GET https://api.swiiprx.com/v2.0/cardmanagement/card/{cardToken}/transaction` (platform -> Paynetics, so your blocked IP is not involved) and exports one combined CSV.
+
+CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`): same 34 columns/order, every value double-quoted with `"` doubled, `internal-transfer` mapped to `Load`/`Unload` by comparing the counterpart card to the card token, dates/values emitted exactly as returned (no reformatting), and a row with only `CardToken` + `RawResponse` for failed cards or responses without items.
+
+## Design
+
+- `wwwroot/` - vanilla JS UI. MSAL handles login, token cache (sessionStorage) and silent renewal (`acquireTokenSilent` before every request; one forced refresh on 401). If silent renewal needs interaction, you are told to sign in again and use **Retry failed**.
+- Fetching: configurable concurrency (default 4), retries with exponential backoff + jitter on network errors/429/5xx (honours `Retry-After`, default 4 retries), per-token status (pending/running/success/failed), progress bar, cancel, retry-failed.
+- Same-origin proxy (`/api/cards/{token}/transactions`): the platform API's CORS policy for `localhost` is unknown, so calls go through the local server, which forwards your `Authorization` header unchanged. Nothing is stored or logged; no secrets exist in the app. Token format is validated (64 hex) before proxying.
+- `CardTransactionsCsv` / `CardTokenParser` (C#) hold the CSV and parsing logic, exposed as `/api/export` and `/api/tokens/parse`.
+
+## Configuration
+
+`appsettings.json` (override via environment variables, user-secrets or `appsettings.Local.json`, which is git-ignored):
+
+| Setting (env var) | Meaning |
+|---|---|
+| `AzureAdB2C:ClientId` (`AzureAdB2C__ClientId`) | **Required.** SPA app registration client ID |
+| `AzureAdB2C:Scopes` (`AzureAdB2C__Scopes`) | **Required.** Full scope URI(s), space/comma separated, e.g. `https://<tenant>.onmicrosoft.com/<api-app-id>/access_as_user` (plain `access_as_user` is not enough for B2C) |
+| `AzureAdB2C:RedirectUri` | Default `http://localhost:5173/` |
+| `AzureAdB2C:Authority` / `Policy` | Default `https://login.swiiprx.com/eecea696-0f67-4e65-a017-34650c9ab7b1/v2.0/` / `B2C_1_Swiiprx_User` |
+| `PlatformApi:BaseUrl` | Default `https://api.swiiprx.com` |
+| `Fetch:MaxConcurrency`, `Fetch:MaxRetries` | Defaults 4 / 4 |
+| `Urls` | Default `http://localhost:5173` |
+
+## Run
+
+```powershell
+cd SwiiprCardTransactionsUi
+npm install            # copies msal-browser.min.js into wwwroot/lib
+$env:AzureAdB2C__ClientId = "<client id>"
+$env:AzureAdB2C__Scopes   = "<full scope uri for access_as_user>"
+dotnet run
+```
+
+Open http://localhost:5173/, sign in, paste tokens, **Fetch transactions**, **Download CSV** (or the per-row **CSV** button).
+
+## Tests
+
+```powershell
+dotnet test          # from the repo root (SwiiprCardTransactionsUi.sln)
+```
+
+## B2C requirements
+
+- The app registration used must be a **Single-page application** with redirect URI `http://localhost:5173/` (exactly `AzureAdB2C:RedirectUri`) added under the SPA platform (needed for auth-code + PKCE). Add the deployed URL too if hosted elsewhere.
+- It must be allowed to request the `access_as_user` API permission (admin-consented) and be enabled on the `B2C_1_Swiiprx_User` user flow.
+- If the login domain blocks it, `login.swiiprx.com` is passed as a known authority.
+
+## Differences / assumptions vs. the Paynetics response
+
+The platform response schema was not available, so the mapper is tolerant: it reads `data.items`, `data` (array), `items`, or a bare array; field names are matched as Paynetics snake_case first, then case/underscore-insensitive (`createdAt`, `CreatedAt`). Differences from the reference:
+
+- Success is HTTP 2xx (the reference required Paynetics `code == 0`).
+- No `/v2/transactions/1/1000?show_hidden=true` paging params: the platform endpoint takes only the card token, so volume/hidden-transaction coverage depends on the platform.
+- `type == internal-transfer` -> `Load`/`Unload` relies on `counterpart.card` being present in the platform payload; if the platform omits it, such rows will read `Unload`.
+- If the platform renames fields, those columns will be empty (raw JSON is not kept for success rows) - adjust the keys in `CardTransactionsCsv.ItemRow`.
+- The console export writes to a fixed folder with CRLF newlines on Windows; here the CSV is downloaded and uses the server's `Environment.NewLine`.

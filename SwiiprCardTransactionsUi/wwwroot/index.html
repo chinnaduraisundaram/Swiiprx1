@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SwiiprX card transactions export</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>SwiiprX card transactions export</h1>
+    <div id="auth">
+      <span id="account"></span>
+      <button id="signIn" type="button">Sign in</button>
+      <button id="signOut" type="button" hidden>Sign out</button>
+    </div>
+  </header>
+
+  <div id="banner" role="alert" hidden></div>
+
+  <main>
+    <section>
+      <h2>1. Card tokens</h2>
+      <p>One token per line (64 hex characters). Paste, or upload a .txt/.csv file. Tokens are trimmed and de-duplicated.</p>
+      <textarea id="tokens" rows="8" spellcheck="false"></textarea>
+      <div class="row">
+        <input id="file" type="file" accept=".txt,.csv,text/plain">
+        <span id="parseSummary"></span>
+      </div>
+      <details id="invalidBox" hidden><summary id="invalidSummary"></summary><pre id="invalidList"></pre></details>
+    </section>
+
+    <section>
+      <h2>2. Fetch</h2>
+      <div class="row">
+        <button id="fetchBtn" type="button" disabled>Fetch transactions</button>
+        <button id="cancelBtn" type="button" disabled>Cancel</button>
+        <button id="retryBtn" type="button" disabled>Retry failed</button>
+        <progress id="progress" value="0" max="1"></progress>
+        <span id="progressText"></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Results</h2>
+      <div class="row">
+        <button id="downloadBtn" type="button" disabled>Download CSV</button>
+        <span id="csvNote"></span>
+      </div>
+      <table>
+        <thead><tr><th>Card token</th><th>Status</th><th>Transactions</th><th>Error</th><th></th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="lib/msal-browser.min.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
