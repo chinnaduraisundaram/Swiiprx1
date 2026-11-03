@@ -1,5 +1,6 @@
 const $ = (id) => document.getElementById(id);
 import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from './bearer.js';
+import { sessionSettings, startSessionTimer, formatMmSs } from './session.js';
 
 const STORAGE_KEY = 'swiipr.cardTokens';
 let manualToken = ''; // memory only; never written to storage or logged
@@ -49,7 +50,56 @@ async function init() {
     if (account) msalApp.setActiveAccount(account);
   }
   renderAuth();
+  startSession();
   await parseTokens();
+}
+
+let sessionTimer;
+
+function startSession() {
+  const { timeoutMs, warnMs } = sessionSettings(config);
+  const warn = document.createElement('div');
+  warn.id = 'sessionWarn';
+  warn.hidden = true;
+  warn.innerHTML = '<span id="sessionWarnText"></span> <button type="button" id="sessionStay">Stay signed in</button>';
+  document.body.append(warn);
+  $('sessionStay').addEventListener('click', () => { sessionTimer.touch(); warn.hidden = true; });
+
+  sessionTimer = startSessionTimer({
+    timeoutMs,
+    warnMs,
+    isBusy: () => running,
+    onWarning: (left) => {
+      $('sessionWarnText').textContent = `Session expires in ${formatMmSs(left)} due to inactivity.`;
+      warn.hidden = false;
+    },
+    onActive: () => { warn.hidden = true; },
+    onExpire: () => { warn.hidden = true; expireSession(); },
+  });
+}
+
+// Clears everything held in memory and signs the account out locally (no redirect, so the message stays visible).
+async function expireSession() {
+  cancelled = true;
+  manualToken = '';
+  $('jwt').value = '';
+  $('jwtStatus').textContent = '';
+  rows = [];
+  $('tokens').value = '';
+  sessionStorage.removeItem(STORAGE_KEY);
+  if (msalApp && account) {
+    try { await msalApp.logoutRedirect({ account, onRedirectNavigate: () => false }); } catch { /* cache cleared best effort */ }
+  }
+  account = null;
+  await parseTokens();
+  render();
+  renderAuth();
+  const modal = document.createElement('div');
+  modal.className = 'session-modal';
+  modal.setAttribute('role', 'alertdialog');
+  modal.innerHTML = '<div><h2>Session expired</h2><p>You were inactive, so you have been signed out and pasted tokens and results were cleared. Please sign in again.</p><button type="button" id="sessionSignIn">Sign in again</button></div>';
+  document.body.append(modal);
+  $('sessionSignIn').addEventListener('click', () => (msalApp ? msalApp.loginRedirect({ scopes: config.scopes }) : location.reload()));
 }
 
 function renderAuth() {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { cleanTokens, parseCsv, filterRows, toCsv, decodeJwt, formatDuration, detectDelimiter } from '../wwwroot/js/utils.js';
-import { tasks, categories, hrefOf } from '../wwwroot/js/tasks.js';
+import { tasks, categories } from '../wwwroot/js/tasks.js';
 
 test('cleanTokens trims, strips quotes/NBSP, dedupes and counts', () => {
   const r = cleanTokens('\u00a0"abc"\t\r\n abc \n"d,e"\n\u200Bxyz\n');
@@ -61,15 +61,10 @@ test('formatDuration', () => {
   assert.equal(formatDuration(-30), '30s ago');
 });
 
-test('registry: ten+ unique activities, valid categories, planned have specs', () => {
-  assert.ok(tasks.length >= 10);
+test('registry: unique ids, valid categories, hrefs', () => {
   assert.equal(new Set(tasks.map((t) => t.id)).size, tasks.length);
   for (const t of tasks) {
     assert.ok(categories.includes(t.category), t.id);
-    assert.ok(['available', 'planned'].includes(t.status), t.id);
-    if (t.status === 'planned') {
-      assert.ok(t.purpose && t.inputs?.length && t.outputs?.length, t.id);
-      assert.match(hrefOf(t), /^\/planned\.html\?id=/);
-    } else assert.ok(t.href, t.id);
+    assert.ok(t.href?.startsWith('/'), t.id);
   }
 });

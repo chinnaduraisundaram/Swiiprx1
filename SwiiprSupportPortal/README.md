@@ -2,9 +2,9 @@
 
 Multi-task airline support portal. Home page (animated take-off/landing hero) plus task pages; the first task is **Card Transactions Export** (`/card-transactions.html`).
 
-**Adding a task:** add an entry to `wwwroot/js/tasks.js` (id, title, category, status, description). `status: 'available'` needs an `href` to a page you build; `status: 'planned'` needs `purpose`, `inputs`, `outputs` and automatically gets the non-functional `planned.html` template. The home dashboard counts and groups come from this registry; set `nav: true` to pin it in the menu.
+**Adding a task:** build a page under `wwwroot/`, then add an entry to `wwwroot/js/tasks.js` (id, title, category, href, icon, description). The home dashboard and grouping come from this registry; set `nav: true` to pin it in the menu.
 
-**Catalogue:** Available - Card Transactions Export (platform API), Bulk Token Utilities, CSV Viewer/Cleaner, JWT Decoder (all client-side, nothing uploaded or stored), Production Release Checklist (ticks saved in localStorage), Support Runbook & FAQ. Planned (placeholders, not functional) - Card Balance Check, Card Status Lookup, KYC/Account Lookup, Transaction Search, Reconciliation Report, Failed Payments Review, Chargeback/Dispute Tracker, Refund Status. Pure logic for the utilities is in `wwwroot/js/utils.js` (tests: `npm test`). Layout lives in `js/layout.js`, styles in `css/site.css`.
+**Tools:** Card Transactions Export (platform API), Bulk Token Utilities, CSV Viewer/Cleaner, JWT Decoder (client-side only, nothing uploaded or stored), Production Release Checklist (ticks saved in localStorage) and Support Runbook & FAQ. Pure logic for the utilities is in `wwwroot/js/utils.js` (tests: `npm test`). Layout lives in `js/layout.js`, styles in `css/site.css`.
 
 Transaction token column: matched case-insensitively, ignoring `_`/`-`, in this order: `token`, `transactionToken`, `transactionId`, `transactionReference`, `id`; then a nested `transaction.{id|token}`; then any property whose name contains `transaction` + (`id`|`token`); finally any property ending in `id` (excluding card/account/merchant/counterpart/user/customer). Numbers and GUIDs are accepted. If the column is still empty, use **Show raw** on a token's row (or **Copy raw JSON**) to see the real field names. As a flagged last resort (no token/id field at all) `external_identifier`, `external_link`, then `linked_transaction` are used and the RawResponse column says so; `merchant`/`account`/`balance`/`acquiring.card` are never used. Items are found in `data.items`, `data`, `items`, a bare array, or the first array of objects at the root/`data`. Suggested repo name: `swiipr-airline-support-portal`.
 
@@ -35,6 +35,7 @@ CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`)
 | `AzureAdB2C:Authority` / `Policy` | Default `https://login.swiiprx.com/eecea696-0f67-4e65-a017-34650c9ab7b1/v2.0/` / `B2C_1_Swiiprx_User` |
 | `PlatformApi:BaseUrl` | Default `https://api.swiiprx.com` |
 | `Fetch:MaxConcurrency`, `Fetch:MaxRetries` | Defaults 4 / 4 |
+| `Session:TimeoutMinutes`, `Session:WarningMinutes` | Idle timeout on the Card Export page (default 60 min, `0` disables) and the "Stay signed in" warning shown before it (default 5 min). On expiry the pasted JWT, card tokens and results are cleared, the account is signed out locally and a "Session expired" dialog is shown. Running fetches count as activity. |
 | `Urls` | Default `http://localhost:5173` |
 
 ## Run

@@ -28,6 +28,8 @@ app.MapGet("/api/config", (IConfiguration config) =>
         scopes = (b2c["Scopes"] ?? string.Empty).Split([' ', ','], StringSplitOptions.RemoveEmptyEntries),
         maxConcurrency = config.GetValue("Fetch:MaxConcurrency", 4),
         maxRetries = config.GetValue("Fetch:MaxRetries", 4),
+        sessionTimeoutMinutes = config.GetValue("Session:TimeoutMinutes", 60),
+        sessionWarningMinutes = config.GetValue("Session:WarningMinutes", 5),
     });
 });
 
