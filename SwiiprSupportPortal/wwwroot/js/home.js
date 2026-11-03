@@ -1,8 +1,15 @@
-import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104d';
-import { mountCarousel } from './carousel.js?v=20261104d';
+import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104f';
+import { mountCarousel } from './carousel.js?v=20261104f';
 
 const carouselRoot = document.getElementById('flight-carousel');
 if (carouselRoot) mountCarousel(carouselRoot);
+
+const pilotImg = document.querySelector('#pilot-card img');
+if (pilotImg) {
+  const useFallback = () => { pilotImg.hidden = true; document.querySelector('#pilot-card .pilot-fallback').hidden = false; };
+  pilotImg.addEventListener('error', useFallback);
+  if (pilotImg.complete && pilotImg.naturalWidth === 0) useFallback();
+}
 
 // B2C redirects back to the configured redirect URI (the site root); forward the auth response to the page that started sign-in.
 if (/[#?&](code|error|state)=/.test(location.hash)) {

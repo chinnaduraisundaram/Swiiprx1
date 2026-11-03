@@ -96,3 +96,6 @@ The session is one absolute window (default 60 min, `Session:TimeoutMinutes`) pe
 
 ## Dashboard flight carousel
 The Dashboard shows a rotating banner (`wwwroot/js/carousel.js`) of four **original inline-SVG illustrations** (takeoff, cruising above clouds, landing at sunset, apron at dusk). No photos or third-party assets are used, so there are no licences or credits to track. It has a fixed aspect ratio (no layout shift), prev/next buttons, dots, arrow-key support, pauses on hover/focus, and does not auto-rotate under `prefers-reduced-motion`. To use real photos instead, drop licensed images into `wwwroot/assets/img/` with a `CREDITS.md` and swap the slide art.
+
+## Dashboard pilot photo
+`wwwroot/assets/img/pilot.jpg` is a public-domain photo (San Diego Air & Space Museum Archives via Wikimedia Commons; see `wwwroot/assets/img/CREDITS.md`). Drop your own image at that path (about 1600x640, under 250 KB) to replace it; if the file is missing the dashboard falls back to an SVG illustration. The base font is now 20px (`html { font-size: 20px }` in `site.css`) and the sidebar is 290px wide.

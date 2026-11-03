@@ -14,12 +14,12 @@
   --bad: #c9372c;
   --radius: 5px;
   --shadow: 0 1px 3px rgba(30, 40, 55, .12);
-  --sidebar-w: 250px;
+  --sidebar-w: 290px;
   --sidebar-w-collapsed: 62px;
   --topbar-h: 56px;
 }
 * { box-sizing: border-box; }
-html { font-size: 16px; }
+html { font-size: 20px; }
 body { margin: 0; font-family: "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.45; }
 a { color: var(--blue-dark); }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
@@ -31,7 +31,7 @@ a { color: var(--blue-dark); }
 .brand img { height: 30px; width: auto; max-width: 100%; }
 .nav { padding: .75rem 0 2rem; }
 .nav-label { padding: .5rem 1.25rem; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: #98a1ad; font-weight: 600; }
-.nav-item { display: flex; align-items: center; gap: .8rem; width: 100%; padding: .7rem 1.25rem; color: #4b5563; text-decoration: none; font-size: .95rem; background: none; border: 0; border-left: 3px solid transparent; border-radius: 0; cursor: pointer; font-family: inherit; font-weight: 400; text-align: left; white-space: nowrap; }
+.nav-item { display: flex; align-items: center; gap: .8rem; width: 100%; padding: .7rem 1.25rem; color: #4b5563; text-decoration: none; font-size: .95rem; background: none; border: 0; border-left: 3px solid transparent; border-radius: 0; cursor: pointer; font-family: inherit; font-weight: 400; text-align: left; white-space: normal; line-height: 1.25; }
 .nav-item svg { flex: none; width: 20px; height: 20px; stroke-width: 1.5; }
 .nav-item:hover:not(:disabled) { background: #f4f6f8; color: var(--teal-dark); }
 .nav-item.active { color: var(--teal); border-left-color: var(--teal); background: #f0f8f8; font-weight: 600; }
@@ -39,7 +39,7 @@ a { color: var(--blue-dark); }
 .nav-group-toggle .chev { margin-left: auto; transition: transform .15s; width: 16px; height: 16px; }
 .nav-group.open > .nav-group-toggle .chev { transform: rotate(180deg); }
 .nav-sub[hidden] { display: none; }
-.nav-sub .nav-item { padding-left: 2.9rem; font-size: .92rem; }
+.nav-sub .nav-item { padding-left: 2.4rem; font-size: .92rem; }
 .nav-sub .nav-item svg { width: 17px; height: 17px; }
 .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .topbar { position: sticky; top: 0; z-index: 30; height: var(--topbar-h); background: var(--topbar); color: #e7eaee; display: flex; align-items: center; gap: .9rem; padding: 0 1rem; }
@@ -152,10 +152,10 @@ a.task-card:hover { border-top-color: var(--teal); box-shadow: 0 3px 10px rgba(3
 .session-modal h2 { margin-top: 0; }
 
 @media (max-width: 860px) {
-  .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform .2s; width: 270px; box-shadow: 4px 0 16px rgba(0, 0, 0, .2); }
+  .sidebar { position: fixed; left: 0; top: 0; transform: translateX(-100%); transition: transform .2s; width: 300px; box-shadow: 4px 0 16px rgba(0, 0, 0, .2); }
   body.sb-open .sidebar { transform: none; }
   body.sb-open .scrim { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, .4); z-index: 35; }
-  body.sb-collapsed .sidebar { width: 270px; }
+  body.sb-collapsed .sidebar { width: 300px; }
   body.sb-collapsed .nav .label { display: inline; }
   body.sb-collapsed .nav-label { display: block; }
   body.sb-collapsed .chev { display: block; }
@@ -185,3 +185,13 @@ a.task-card:hover { border-top-color: var(--teal); box-shadow: 0 3px 10px rgba(3
 .car-credit{position:absolute;right:.75rem;bottom:.5rem;font-size:.72rem;color:rgba(255,255,255,.75)}
 @media (max-width:768px){.carousel{aspect-ratio:16/9}.car-slide figcaption strong{font-size:1.05rem}.car-slide figcaption span{display:none}.car-credit{display:none}}
 @media (prefers-reduced-motion:reduce){.car-slide{transition:none}}
+
+/* Dashboard pilot photo */
+.pilot-card{position:relative;margin:0 0 1.25rem;aspect-ratio:5/2;border-radius:6px;overflow:hidden;background:#222;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.pilot-card img,.pilot-card .pilot-fallback{width:100%;height:100%;object-fit:cover;display:block}
+.pilot-card [hidden]{display:none}
+.pilot-card figcaption{position:absolute;left:0;right:0;bottom:0;padding:2.5rem 1.5rem .9rem;color:#fff;background:linear-gradient(to top,rgba(10,20,40,.78),rgba(10,20,40,0));display:flex;flex-direction:column;gap:.1rem}
+.pilot-card figcaption strong{font-size:1.3rem;font-weight:600}
+.pilot-card figcaption span{font-size:.7rem;opacity:.9}
+.pilot-card figcaption a{color:#cfe8f7}
+@media (max-width:768px){.pilot-card{aspect-ratio:16/9}}
