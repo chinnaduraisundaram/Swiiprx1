@@ -89,3 +89,7 @@ The portal uses a shared shell (`wwwroot/js/layout.js` + `css/site.css` design t
 ### Default user name
 
 The top-bar chip shows the signed-in B2C account or JWT name claim, otherwise `Portal:DefaultUserName` (default `Chinna Dev`, exposed via `/api/config`).
+
+### Session window
+
+The session is one absolute window (default 60 min, `Session:TimeoutMinutes`) per browser tab, stored in `sessionStorage` under `swiipr.session.v1` (start/expiry time, display name and the pasted JWT). Refreshing or navigating between pages does **not** reset it; only sign-in/JWT paste or **Stay signed in** starts a fresh window, and the JWT's own `exp` wins if earlier. On expiry the session, MSAL cache, remembered token lists and results are wiped and a 'Session expired' dialog is shown. Not shared across tabs (no localStorage). The pasted JWT therefore lives in this tab's sessionStorage until expiry, Clear or tab close; it is never logged and only sent as the Authorization header to the same-origin proxy.

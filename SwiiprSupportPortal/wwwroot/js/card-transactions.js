@@ -1,14 +1,13 @@
 const $ = (id) => document.getElementById(id);
-import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js?v=20261104b';
-import { setUser, setSessionClock } from './layout.js?v=20261104b';
-import { sessionSettings, startSessionTimer, formatMmSs } from './session.js?v=20261104b';
-import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js?v=20261104b';
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js?v=20261104c';
+import { setUser, session } from './layout.js?v=20261104c';
+import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js?v=20261104c';
 
 const BALANCE = document.body.dataset.mode === 'balance';
 const ENDPOINT = BALANCE ? 'balance' : 'transactions';
 
 const STORAGE_KEY = BALANCE ? 'swiipr.cardTokens.balance' : 'swiipr.cardTokens';
-let manualToken = ''; // memory only; never written to storage or logged
+let manualToken = ''; // mirrors the tab-scoped session (sessionStorage); never logged
 
 let config;
 let msalApp;
@@ -25,6 +24,7 @@ function banner(message, info = false) {
 }
 
 async function init() {
+  await session.ready;
   const saved = sessionStorage.getItem(STORAGE_KEY);
   if (saved) $('tokens').value = saved;
 
@@ -54,77 +54,49 @@ async function init() {
     account = msalApp.getActiveAccount() ?? msalApp.getAllAccounts()[0] ?? null;
     if (account) msalApp.setActiveAccount(account);
   }
+  if (session.token) {
+    $('jwt').value = session.token;
+    applyManualToken();
+  } else if (account && !session.active) {
+    session.begin({ name: account.name || account.username || '' });
+  }
   renderAuth();
-  startSession();
   await parseTokens();
 }
 
-let sessionTimer;
-
-function startSession() {
-  const { timeoutMs, warnMs } = sessionSettings(config);
-  const warn = document.createElement('div');
-  warn.id = 'sessionWarn';
-  warn.hidden = true;
-  warn.innerHTML = '<span id="sessionWarnText"></span> <button type="button" id="sessionStay">Stay signed in</button>';
-  document.body.append(warn);
-  $('sessionStay').addEventListener('click', () => { sessionTimer.touch(); warn.hidden = true; });
-
-  sessionTimer = startSessionTimer({
-    timeoutMs,
-    warnMs,
-    isBusy: () => running,
-    onWarning: (left) => {
-      $('sessionWarnText').textContent = `Session expires in ${formatMmSs(left)} due to inactivity.`;
-      warn.hidden = false;
-    },
-    onTick: (left) => setSessionClock(left),
-    onActive: () => { warn.hidden = true; },
-    onExpire: () => { warn.hidden = true; expireSession(); },
-  });
-}
-
-// Clears everything held in memory and signs the account out locally (no redirect, so the message stays visible).
-async function expireSession() {
+// Expiry (absolute, tab-scoped window handled in layout.js): clear everything this page holds in memory.
+session.onExpire(() => {
   cancelled = true;
   manualToken = '';
   $('jwt').value = '';
   $('jwtStatus').textContent = '';
   rows = [];
   $('tokens').value = '';
-  sessionStorage.removeItem(STORAGE_KEY);
-  if (msalApp && account) {
-    try { await msalApp.logoutRedirect({ account, onRedirectNavigate: () => false }); } catch { /* cache cleared best effort */ }
-  }
   account = null;
-  await parseTokens();
-  render();
-  renderAuth();
-  const modal = document.createElement('div');
-  modal.className = 'session-modal';
-  modal.setAttribute('role', 'alertdialog');
-  modal.innerHTML = '<div><h2>Session expired</h2><p>You were inactive, so you have been signed out and pasted tokens and results were cleared. Please sign in again.</p><button type="button" id="sessionSignIn">Sign in again</button></div>';
-  document.body.append(modal);
-  $('sessionSignIn').addEventListener('click', () => (msalApp ? msalApp.loginRedirect({ scopes: config.scopes }) : location.reload()));
-}
-
+  parseTokens().then(() => { render(); renderAuth(); });
+});
 function renderAuth() {
   $('signIn').hidden = !!account;
   $('signOut').hidden = !account;
   $('signIn').disabled = !msalApp;
   $('account').textContent = account ? (account.name || account.username || 'Signed in') : '';
-    setUser(account ? (account.name || account.username) : jwtDisplayName(manualToken));
-    updateButtons();
+  setUser(account ? (account.name || account.username) : jwtDisplayName(manualToken));
+  updateButtons();
 }
 
 $('signIn').addEventListener('click', () => {
   sessionStorage.setItem('swiipr.returnTo', location.pathname);
   msalApp.loginRedirect({ scopes: config.scopes });
 });
-$('signOut').addEventListener('click', () => msalApp.logoutRedirect({ account }));
+$('signOut').addEventListener('click', () => { session.end(); msalApp.logoutRedirect({ account }); });
 
 function applyManualToken() {
   manualToken = normalizeBearerToken($('jwt').value);
+  if (manualToken && manualToken !== session.token) {
+    session.begin({ token: manualToken, name: jwtDisplayName(manualToken), tokenExp: jwtExpiryMs(manualToken) });
+  } else if (!manualToken) {
+    session.clearToken(!!account);
+  }
   if (!account) setUser(jwtDisplayName(manualToken));
   const status = $('jwtStatus');
   if (!manualToken) {

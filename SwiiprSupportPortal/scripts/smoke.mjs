@@ -38,6 +38,35 @@ for (const [width, collapsedState] of [[1280, null], [1280, 'collapsed'], [390, 
   if (errors.length) fail(`page errors @${width}: ${errors.join('; ')}`);
   await ctx.close();
 }
+// Session countdown must survive a reload and navigation to another page (absolute window in sessionStorage).
+{
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const page = await ctx.newPage();
+  const secs = async () => {
+    await page.waitForSelector('#sessionClock:not([hidden])', { timeout: 5000 });
+    const [m, s] = (await page.textContent('#sessionClock')).replace('Session ', '').split(':').map(Number);
+    return m * 60 + s;
+  };
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const jwt = `${b64({ alg: 'none' })}.${b64({ name: 'Smoke Test', exp: Math.floor(Date.now() / 1000) + 7200 })}.sig`;
+  await page.goto(`${base}/card-transactions.html`);
+  await page.fill('#jwt', jwt);
+  const first = await secs();
+  await page.waitForTimeout(3000);
+  await page.reload();
+  const afterReload = await secs();
+  if (afterReload > first - 2 || afterReload < first - 8) fail(`countdown reset/jumped on reload: ${first} -> ${afterReload}`);
+  await page.goto(`${base}/runbook.html`);
+  const afterNav = await secs();
+  if (afterNav > afterReload || afterNav < afterReload - 8) fail(`countdown reset/jumped on navigation: ${afterReload} -> ${afterNav}`);
+  if (first < 3500 || first > 3600) fail(`unexpected initial window ${first}s`);
+  if ((await page.textContent('#userName')) !== 'Smoke Test') fail('display name not kept across pages');
+  await page.goto(`${base}/card-transactions.html`);
+  await page.waitForSelector('#jwt');
+  if ((await page.inputValue('#jwt')) !== jwt) fail('pasted JWT not restored after navigation');
+  await ctx.close();
+}
+
 await browser.close();
 console.log(failures ? `${failures} failure(s)` : 'smoke OK');
 process.exit(failures ? 1 : 0);

@@ -1,4 +1,4 @@
-import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104b';
+import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104c';
 
 // B2C redirects back to the configured redirect URI (the site root); forward the auth response to the page that started sign-in.
 if (/[#?&](code|error|state)=/.test(location.hash)) {

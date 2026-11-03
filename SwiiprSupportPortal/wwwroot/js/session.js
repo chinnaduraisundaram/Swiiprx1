@@ -1,4 +1,4 @@
-// Idle-session logic. evaluateSession is pure (unit-tested); startSessionTimer wires it to DOM activity events.
+// Session window maths (pure, unit-tested). The persisted absolute window lives in session-store.js; layout.js drives the UI.
 
 export function evaluateSession({ lastActivity, now, timeoutMs, warnMs }) {
   const left = lastActivity + timeoutMs - now;
@@ -17,46 +17,4 @@ export function sessionSettings(config) {
 export function formatMmSs(ms) {
   const s = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
-
-// isBusy (e.g. a fetch is running) counts as activity. Returns { touch, stop }.
-export function startSessionTimer({ timeoutMs, warnMs, isBusy = () => false, onWarning, onActive, onExpire, onTick, now = () => Date.now() }) {
-  if (!timeoutMs) return { touch() {}, stop() {} };
-  let last = now();
-  let expired = false;
-  let lastState = 'active';
-  const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
-  let lastTouch = 0;
-  const touch = () => {
-    if (expired) return;
-    const t = now();
-    if (t - lastTouch < 1000) return; // throttle noisy events
-    lastTouch = t;
-    last = t;
-  };
-  const stayActive = () => { if (!expired) { last = now(); lastTouch = last; } };
-  const tick = () => {
-    if (expired) return;
-    if (isBusy()) last = now();
-    const s = evaluateSession({ lastActivity: last, now: now(), timeoutMs, warnMs });
-    onTick?.(s.msLeft);
-    if (s.state === 'expired') {
-      expired = true;
-      stop();
-      onExpire?.();
-    } else if (s.state === 'warning') {
-      lastState = 'warning';
-      onWarning?.(s.msLeft);
-    } else if (lastState !== 'active') {
-      lastState = 'active';
-      onActive?.();
-    }
-  };
-  events.forEach((e) => window.addEventListener(e, touch, { passive: true }));
-  const handle = setInterval(tick, 1000);
-  function stop() {
-    clearInterval(handle);
-    events.forEach((e) => window.removeEventListener(e, touch));
-  }
-  return { touch: stayActive, stop };
 }

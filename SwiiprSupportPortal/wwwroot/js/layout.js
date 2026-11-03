@@ -1,5 +1,7 @@
-import { tasks, categories, home, icons } from './tasks.js?v=20261104b';
-import { initials } from './bearer.js?v=20261104b';
+import { tasks, categories, home, icons } from './tasks.js?v=20261104c';
+import { initials } from './bearer.js?v=20261104c';
+import { evaluateSession, sessionSettings, formatMmSs } from './session.js?v=20261104c';
+import { startSession, loadSession, extendSession, updateSession, clearSession, wipeAll } from './session-store.js?v=20261104c';
 
 // Shared application shell: sidebar (from the task registry), dark top bar, content area and footer.
 // Pages only declare <div id="site-nav" data-active="..."> and <div id="site-footer">; everything else on the page
@@ -150,17 +152,121 @@ export function setUser(name) {
   if (i) i.textContent = initials(display);
 }
 
-export function setSessionClock(msLeft) {
+function setSessionClock(msLeft, limitedByToken) {
   const el = document.getElementById('sessionClock');
   if (!el) return;
   if (msLeft == null) { el.hidden = true; return; }
-  const s = Math.max(0, Math.ceil(msLeft / 1000));
   el.hidden = false;
-  el.textContent = `Session ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-  el.classList.toggle('warn', s <= 300);
+  el.textContent = `Session ${formatMmSs(msLeft)}`;
+  el.title = limitedByToken ? 'Ends when the JWT expires (earlier than the session window)' : "Time left in this tab's session";
+  el.classList.toggle('warn', msLeft <= warnMs);
 }
 
-// Default display name comes from Portal:DefaultUserName via /api/config; a signed-in name always wins.
+// Session: one absolute window per tab, persisted in sessionStorage (see session-store.js), so refreshing or
+// navigating between portal pages never restarts the countdown. Pages use the `session` API below.
+let timeoutMs = 60 * 60_000;
+let warnMs = 5 * 60_000;
+let sess = null;
+let timer = null;
+let warnEl = null;
+const expireHandlers = [];
+
+function showExpiredDialog() {
+  if (document.querySelector('.session-modal')) return;
+  const onCards = /^\/card-(transactions|balance)\.html$/.test(location.pathname);
+  const modal = document.createElement('div');
+  modal.className = 'session-modal';
+  modal.setAttribute('role', 'alertdialog');
+  modal.setAttribute('aria-labelledby', 'sessionExpiredTitle');
+  modal.innerHTML = '<div><h2 id="sessionExpiredTitle">Session expired</h2><p>Your session has ended, so you have been signed out and any pasted token, token list and results were cleared. Please sign in again.</p><button type="button" id="sessionSignIn">Sign in again</button></div>';
+  document.body.append(modal);
+  modal.querySelector('button').addEventListener('click', () => { location.href = onCards ? location.pathname : '/card-transactions.html'; });
+  modal.querySelector('button').focus();
+}
+
+function expire() {
+  stopTimer();
+  sess = null;
+  wipeAll(sessionStorage);
+  setSessionClock(null);
+  if (warnEl) warnEl.hidden = true;
+  expireHandlers.forEach((fn) => { try { fn(); } catch { /* keep going */ } });
+  showExpiredDialog();
+}
+
+function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+
+function tick() {
+  if (!sess) return;
+  if (sess.expiresAt === null) { setSessionClock(null); return; }
+  const s = evaluateSession({ lastActivity: sess.startedAt, now: Date.now(), timeoutMs: sess.expiresAt - sess.startedAt, warnMs });
+  if (s.state === 'expired') { expire(); return; }
+  setSessionClock(s.msLeft, sess.limitedByToken);
+  if (!warnEl) {
+    warnEl = document.createElement('div');
+    warnEl.id = 'sessionWarn';
+    warnEl.hidden = true;
+    warnEl.innerHTML = '<span id="sessionWarnText"></span> <button type="button" id="sessionStay">Stay signed in</button>';
+    document.body.append(warnEl);
+    warnEl.querySelector('button').addEventListener('click', () => session.stay());
+  }
+  warnEl.hidden = s.state !== 'warning';
+  if (s.state === 'warning') warnEl.querySelector('#sessionWarnText').textContent = `Session expires in ${formatMmSs(s.msLeft)}.`;
+}
+
+function startTimer() {
+  stopTimer();
+  tick();
+  if (sess) timer = setInterval(tick, 1000);
+}
+
+let resolveReady;
+export const ready = new Promise((r) => { resolveReady = r; });
+
+export const session = {
+  ready,
+  get active() { return !!sess; },
+  get token() { return sess?.token ?? ''; },
+  get name() { return sess?.name ?? ''; },
+  // Called by pages after sign-in or JWT paste. Keeps the existing window if the same token/account is already active.
+  begin({ token = '', name = '', tokenExp = null } = {}) {
+    if (sess && sess.token === token && sess.name === name) return;
+    sess = startSession(sessionStorage, { now: Date.now(), timeoutMs, token, name, tokenExp });
+    if (sess) setUser(name);
+    startTimer();
+  },
+  // Drops only the pasted JWT (keeps a B2C sign-in window); ends the session otherwise.
+  clearToken(keepWindow) {
+    if (sess && keepWindow) sess = updateSession(sessionStorage, sess, { token: '', tokenExp: null });
+    else this.end();
+  },
+  end() {
+    stopTimer();
+    sess = null;
+    clearSession(sessionStorage);
+    setSessionClock(null);
+    if (warnEl) warnEl.hidden = true;
+  },
+  stay() {
+    if (!sess) return;
+    sess = extendSession(sessionStorage, sess, { now: Date.now(), timeoutMs });
+    if (!sess) { expire(); return; }
+    startTimer();
+  },
+  onExpire(fn) { expireHandlers.push(fn); },
+};
+
+// Default display name and timeouts come from /api/config; a signed-in name always wins.
 fetch('/api/config').then((r) => r.json()).then((c) => {
   if (c.defaultUserName) { defaultName = c.defaultUserName; if (!current) setUser(''); }
-}).catch(() => {});
+  ({ timeoutMs, warnMs } = sessionSettings(c));
+}).catch(() => {}).finally(() => {
+  const { session: stored, expired } = loadSession(sessionStorage, Date.now());
+  if (expired) { wipeAll(sessionStorage); showExpiredDialog(); }
+  else if (stored) {
+    sess = stored;
+    if (stored.name) setUser(stored.name);
+    startTimer();
+  }
+  resolveReady();
+});
