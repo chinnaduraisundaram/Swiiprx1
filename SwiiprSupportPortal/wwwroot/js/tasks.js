@@ -14,12 +14,12 @@ export const icons = {
   wrench: svg('<path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.5-.5-.5-2.5Z"/>'),
 };
 
-export const categories = ['Cards', 'Utilities', 'Operations'];
+export const categories = ['Card Management', 'Utilities', 'Operations'];
 
 export const tasks = [
-  { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Cards',
+  { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Card Management',
     description: 'Fetch card transactions for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
-  { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Cards',
+  { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Card Management',
     description: 'Check status, activation and balances for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
   { id: 'token-utils', title: 'Bulk Token Utilities', short: 'Token Utils', href: '/token-utils.html', icon: 'key', category: 'Utilities',
     description: 'Clean pasted token lists: trim, de-duplicate, sort, count, copy and download. Runs in your browser.', tags: ['Client-side'] },

@@ -23,3 +23,21 @@ test('jwtExpiryMs reads exp or returns null', () => {
   assert.equal(jwtExpiryMs(jwt({})), null);
   assert.equal(jwtExpiryMs('garbage'), null);
 });
+
+import { jwtDisplayName, initials } from '../wwwroot/js/bearer.js';
+
+const claimsJwt = (claims) => `h.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.s`;
+
+test('jwtDisplayName prefers name, then given/family, emails, email', () => {
+  assert.equal(jwtDisplayName(claimsJwt({ name: 'Ada Lovelace', email: 'a@x.com' })), 'Ada Lovelace');
+  assert.equal(jwtDisplayName(claimsJwt({ given_name: 'Ada', family_name: 'Byron' })), 'Ada Byron');
+  assert.equal(jwtDisplayName(claimsJwt({ emails: ['a@x.com'] })), 'a@x.com');
+  assert.equal(jwtDisplayName('garbage'), '');
+});
+
+test('initials', () => {
+  assert.equal(initials('Ops Specialist'), 'OS');
+  assert.equal(initials('ada.lovelace@x.com'), 'AL');
+  assert.equal(initials('Chinna'), 'CH');
+  assert.equal(initials(''), 'SE');
+});

@@ -1,5 +1,6 @@
 const $ = (id) => document.getElementById(id);
-import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from './bearer.js';
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js';
+import { setUser, setSessionClock } from './layout.js';
 import { sessionSettings, startSessionTimer, formatMmSs } from './session.js';
 import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js';
 
@@ -77,6 +78,7 @@ function startSession() {
       $('sessionWarnText').textContent = `Session expires in ${formatMmSs(left)} due to inactivity.`;
       warn.hidden = false;
     },
+    onTick: (left) => setSessionClock(left),
     onActive: () => { warn.hidden = true; },
     onExpire: () => { warn.hidden = true; expireSession(); },
   });
@@ -111,7 +113,8 @@ function renderAuth() {
   $('signOut').hidden = !account;
   $('signIn').disabled = !msalApp;
   $('account').textContent = account ? (account.name || account.username || 'Signed in') : '';
-  updateButtons();
+    setUser(account ? (account.name || account.username) : jwtDisplayName(manualToken));
+    updateButtons();
 }
 
 $('signIn').addEventListener('click', () => {
@@ -122,6 +125,7 @@ $('signOut').addEventListener('click', () => msalApp.logoutRedirect({ account })
 
 function applyManualToken() {
   manualToken = normalizeBearerToken($('jwt').value);
+  if (!account) setUser(jwtDisplayName(manualToken));
   const status = $('jwtStatus');
   if (!manualToken) {
     status.textContent = '';

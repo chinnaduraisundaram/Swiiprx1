@@ -20,7 +20,7 @@ export function formatMmSs(ms) {
 }
 
 // isBusy (e.g. a fetch is running) counts as activity. Returns { touch, stop }.
-export function startSessionTimer({ timeoutMs, warnMs, isBusy = () => false, onWarning, onActive, onExpire, now = () => Date.now() }) {
+export function startSessionTimer({ timeoutMs, warnMs, isBusy = () => false, onWarning, onActive, onExpire, onTick, now = () => Date.now() }) {
   if (!timeoutMs) return { touch() {}, stop() {} };
   let last = now();
   let expired = false;
@@ -39,6 +39,7 @@ export function startSessionTimer({ timeoutMs, warnMs, isBusy = () => false, onW
     if (expired) return;
     if (isBusy()) last = now();
     const s = evaluateSession({ lastActivity: last, now: now(), timeoutMs, warnMs });
+    onTick?.(s.msLeft);
     if (s.state === 'expired') {
       expired = true;
       stop();

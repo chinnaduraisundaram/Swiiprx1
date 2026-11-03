@@ -77,3 +77,7 @@ The platform response schema was not available, so the mapper is tolerant: it re
 - If the platform renames fields, those columns will be empty (raw JSON is not kept for success rows) - adjust the keys in `CardTransactionsCsv.ItemRow`.
 - The console export writes to a fixed folder with CRLF newlines on Windows; here the CSV is downloaded and uses the server's `Environment.NewLine`.
 
+
+## Layout
+
+The portal uses a shared shell (`wwwroot/js/layout.js` + `css/site.css` design tokens): a left sidebar built from the task registry (`js/tasks.js`; add a task there and it appears in the sidebar and dashboard), and a dark top bar with the session countdown, user chip (B2C account or JWT name/email claim, else 'Support Engineer') and sign in/out.
