@@ -1,4 +1,4 @@
-// Task registry: add an entry here (plus a page) and it appears on the home page; set nav: true to pin it in the menu.
+// Task registry: add an entry here (plus a page) and it appears on the home page; set top: true to show it as its own top-level menu item (otherwise it is listed under the Tasks dropdown).
 const svg = (body) =>
   `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
@@ -17,9 +17,9 @@ export const icons = {
 export const categories = ['Cards', 'Utilities', 'Operations'];
 
 export const tasks = [
-  { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Cards', nav: true,
+  { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Cards',
     description: 'Fetch card transactions for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
-  { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Cards', nav: true,
+  { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Cards',
     description: 'Check status, activation and balances for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
   { id: 'token-utils', title: 'Bulk Token Utilities', short: 'Token Utils', href: '/token-utils.html', icon: 'key', category: 'Utilities',
     description: 'Clean pasted token lists: trim, de-duplicate, sort, count, copy and download. Runs in your browser.', tags: ['Client-side'] },
@@ -27,9 +27,9 @@ export const tasks = [
     description: 'Open a CSV locally, search and filter rows, and download the filtered result. Nothing is uploaded.', tags: ['Client-side'] },
   { id: 'jwt-decoder', title: 'JWT Decoder', short: 'JWT Decoder', href: '/jwt-decoder.html', icon: 'wrench', category: 'Utilities',
     description: 'Decode a token locally and see its claims and expiry countdown. Never sent or stored.', tags: ['Client-side', 'Security'] },
-  { id: 'checklist', title: 'Production Release Checklist', short: 'Checklist', href: '/checklist.html', icon: 'check', category: 'Operations', nav: true,
+  { id: 'checklist', title: 'Production Release Checklist', short: 'Checklist', href: '/checklist.html', icon: 'check', category: 'Operations', top: true,
     description: 'Interactive release checklist saved in this browser only.', tags: ['Release'] },
-  { id: 'runbook', title: 'Support Runbook & FAQ', short: 'Runbook', href: '/runbook.html', icon: 'book', category: 'Operations', nav: true,
+  { id: 'runbook', title: 'Support Runbook & FAQ', short: 'Runbook', href: '/runbook.html', icon: 'book', category: 'Operations', top: true,
     description: 'How to use the portal, token and JWT tips, and what to do about common API errors.', tags: ['Guide'] },
 ];
 

@@ -2,7 +2,7 @@
 
 Multi-task airline support portal. Home page (animated take-off/landing hero) plus task pages; the first task is **Card Transactions Export** (`/card-transactions.html`).
 
-**Adding a task:** build a page under `wwwroot/`, then add an entry to `wwwroot/js/tasks.js` (id, title, category, href, icon, description). The home dashboard and grouping come from this registry; set `nav: true` to pin it in the menu.
+**Adding a task:** build a page under `wwwroot/`, then add an entry to `wwwroot/js/tasks.js` (id, title, category, href, icon, description). The home dashboard and grouping come from this registry; it is listed automatically in the **Tasks** dropdown (set `top: true` to make it a top-level menu item instead).
 
 **Tools:** Card Transactions Export (platform API), Bulk Token Utilities, CSV Viewer/Cleaner, JWT Decoder (client-side only, nothing uploaded or stored), Production Release Checklist (ticks saved in localStorage) and Support Runbook & FAQ. Pure logic for the utilities is in `wwwroot/js/utils.js` (tests: `npm test`). Layout lives in `js/layout.js`, styles in `css/site.css`.
 

@@ -18,18 +18,35 @@ body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0;
 .brand-text { display: flex; flex-direction: column; line-height: 1.1; border-left: 1px solid var(--line); padding-left: .75rem; }
 .brand-text strong { font-size: 1rem; }
 .brand-text small { color: var(--muted); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
-.nav-links { display: flex; gap: .35rem; margin-left: auto; }
-.nav-link { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .9rem; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 500; font-size: .92rem; transition: background .15s, color .15s; }
+.nav-links { display: flex; align-items: center; gap: .35rem; margin-left: auto; }
+.nav-link { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem .9rem; height: 2.6rem; border-radius: 999px; color: var(--ink); text-decoration: none; font-weight: 500; font-size: .92rem; line-height: 1; white-space: nowrap; border: 0; background: none; font-family: inherit; cursor: pointer; transition: background .15s, color .15s; }
+.nav-link svg { flex: none; }
 .nav-link:hover { background: #eaf0fb; color: var(--blue); }
-.nav-link.active { background: var(--blue); color: #fff; }
+.nav-link.active, .nav-link.active:hover { background: var(--blue); color: #fff; }
+.nav-link:focus-visible, .menu-item:focus-visible, .nav-toggle:focus-visible { outline: 3px solid #8fb3f5; outline-offset: 2px; }
+.dropdown { position: relative; }
+.dropdown .chev { transition: transform .15s; }
+.dropdown.open .chev { transform: rotate(180deg); }
+.dropdown.open > .dropdown-toggle:not(.active) { background: #eaf0fb; color: var(--blue); }
+.dropdown-menu { position: absolute; top: calc(100% + .5rem); left: 0; min-width: 21rem; background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 14px 34px rgba(15, 42, 102, .18); padding: .5rem; z-index: 60; }
+.dropdown-menu[hidden] { display: none; }
+.menu-heading { padding: .5rem .75rem .25rem; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.menu-item { display: flex; align-items: center; gap: .65rem; padding: .6rem .75rem; border-radius: 10px; color: var(--ink); text-decoration: none; font-size: .92rem; white-space: nowrap; }
+.menu-item:hover, .menu-item:focus { background: #eaf0fb; color: var(--blue); }
+.menu-item.active { background: #dbe6f9; color: var(--navy); font-weight: 700; }
+.menu-all { margin-top: .35rem; border-top: 1px solid var(--line); border-radius: 0 0 10px 10px; font-weight: 600; color: var(--blue); }
 .nav-toggle { display: none; margin-left: auto; background: none; border: 1px solid var(--line); border-radius: 8px; padding: .35rem; color: var(--navy); }
-@media (max-width: 720px) {
+@media (max-width: 860px) {
   .nav-toggle { display: inline-flex; }
-  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; flex-direction: column; padding: .5rem 1rem 1rem; border-bottom: 1px solid var(--line); margin: 0; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; flex-direction: column; align-items: stretch; gap: .25rem; padding: .5rem 1rem 1rem; border-bottom: 1px solid var(--line); box-shadow: 0 12px 24px rgba(15, 42, 102, .12); margin: 0; max-height: calc(100vh - 4rem); overflow-y: auto; }
   .nav-links.open { display: flex; }
+  .nav-link { height: 2.9rem; }
+  .dropdown-toggle { width: 100%; }
+  .dropdown-toggle .chev { margin-left: auto; }
+  .dropdown-menu { position: static; box-shadow: none; border: 0; border-left: 3px solid var(--line); border-radius: 0; min-width: 0; margin: .15rem 0 .35rem .9rem; padding: 0 0 0 .25rem; }
+  .menu-item { white-space: normal; }
   .brand-text { display: none; }
 }
-
 /* Hero */
 .hero { position: relative; height: 560px; overflow: hidden; background: linear-gradient(#0f2a66 0%, #2f6fd0 45%, #9fc7f5 78%, #e8f2ff 100%); color: #fff; }
 .sun { position: absolute; right: 12%; top: 22%; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, #fff7d6 0%, #ffe59a 40%, rgba(255, 229, 154, 0) 70%); filter: blur(1px); }
@@ -152,3 +169,7 @@ select { padding: .45rem; border-radius: 8px; border: 1px solid #c8d3e8; }
 .session-modal h2 { margin-top: 0; color: var(--navy); }
 
 .flagged td { background: #fff0f0; color: #8a1020; font-weight: 600; }
+
+input[type="file"] { max-width: 100%; }
+
+@media (max-width: 860px) { main.page table { display: block; overflow-x: auto; max-width: 100%; } }
