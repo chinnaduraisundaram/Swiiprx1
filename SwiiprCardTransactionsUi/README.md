@@ -8,6 +8,7 @@ CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`)
 ## Design
 
 - `wwwroot/` - vanilla JS UI. MSAL handles login, token cache (sessionStorage) and silent renewal (`acquireTokenSilent` before every request; one forced refresh on 401). If silent renewal needs interaction, you are told to sign in again and use **Retry failed**.
+- Manual bearer token: the optional **Bearer token** box (masked by default, Show/Clear buttons) takes a pasted JWT (a leading `Bearer ` is stripped). When filled it is used instead of B2C login, so no B2C configuration is needed. It lives only in a JS variable (never in storage, never logged, lost on reload) and is sent only to the local proxy. Its `exp` claim is checked client-side and an expired token stops the run with a clear message.
 - Fetching: configurable concurrency (default 4), retries with exponential backoff + jitter on network errors/429/5xx (honours `Retry-After`, default 4 retries), per-token status (pending/running/success/failed), progress bar, cancel, retry-failed.
 - Same-origin proxy (`/api/cards/{token}/transactions`): the platform API's CORS policy for `localhost` is unknown, so calls go through the local server, which forwards your `Authorization` header unchanged. Nothing is stored or logged; no secrets exist in the app. Token format is validated (64 hex) before proxying.
 - `CardTransactionsCsv` / `CardTokenParser` (C#) hold the CSV and parsing logic, exposed as `/api/export` and `/api/tokens/parse`.
@@ -41,7 +42,8 @@ Open http://localhost:5173/, sign in, paste tokens, **Fetch transactions**, **Do
 ## Tests
 
 ```powershell
-dotnet test          # from the repo root (SwiiprCardTransactionsUi.sln)
+dotnet test          # C# tests, from the repo root (SwiiprCardTransactionsUi.sln)
+cd SwiiprCardTransactionsUi; npm test   # JS tests for bearer-token handling
 ```
 
 ## B2C requirements

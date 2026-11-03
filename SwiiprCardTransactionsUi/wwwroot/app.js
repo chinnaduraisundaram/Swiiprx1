@@ -1,5 +1,8 @@
 const $ = (id) => document.getElementById(id);
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from './bearer.js';
+
 const STORAGE_KEY = 'swiipr.cardTokens';
+let manualToken = ''; // memory only; never written to storage or logged
 
 let config;
 let msalApp;
@@ -60,8 +63,40 @@ function renderAuth() {
 $('signIn').addEventListener('click', () => msalApp.loginRedirect({ scopes: config.scopes }));
 $('signOut').addEventListener('click', () => msalApp.logoutRedirect({ account }));
 
+function applyManualToken() {
+  manualToken = normalizeBearerToken($('jwt').value);
+  const status = $('jwtStatus');
+  if (!manualToken) {
+    status.textContent = '';
+  } else if (!looksLikeJwt(manualToken)) {
+    status.textContent = 'Using pasted token (does not look like a JWT).';
+  } else {
+    const exp = jwtExpiryMs(manualToken);
+    status.textContent = exp === null ? 'Using pasted token.'
+      : exp <= Date.now() ? 'Pasted token has expired.'
+      : `Using pasted token (expires ${new Date(exp).toLocaleString()}).`;
+  }
+  updateButtons();
+}
+$('jwt').addEventListener('input', applyManualToken);
+$('jwtToggle').addEventListener('click', () => {
+  const hidden = $('jwt').type === 'password';
+  $('jwt').type = hidden ? 'text' : 'password';
+  $('jwtToggle').textContent = hidden ? 'Hide' : 'Show';
+});
+$('jwtClear').addEventListener('click', () => { $('jwt').value = ''; applyManualToken(); });
+
 // Silent renewal; MSAL returns the cached token until near expiry, then refreshes it.
 async function getAccessToken(forceRefresh = false) {
+  if (manualToken) {
+    const exp = jwtExpiryMs(manualToken);
+    if (exp !== null && exp <= Date.now()) {
+      const err = new Error('The pasted token has expired - paste a fresh one.');
+      err.fatal = true;
+      throw err;
+    }
+    return manualToken;
+  }
   if (!account) throw new Error('Not signed in.');
   try {
     const result = await msalApp.acquireTokenSilent({ scopes: config.scopes, account, forceRefresh });
@@ -114,9 +149,10 @@ $('file').addEventListener('change', async (e) => {
 });
 
 function updateButtons() {
-  $('fetchBtn').disabled = running || !account || parsedValid.length === 0;
+  const authed = !!account || !!manualToken;
+  $('fetchBtn').disabled = running || !authed || parsedValid.length === 0;
   $('cancelBtn').disabled = !running;
-  $('retryBtn').disabled = running || !account || !rows.some((r) => r.status === 'failed');
+  $('retryBtn').disabled = running || !authed || !rows.some((r) => r.status === 'failed');
   $('downloadBtn').disabled = running || !rows.some((r) => r.status === 'success' || r.status === 'failed');
 }
 

@@ -20,6 +20,16 @@
 
   <main>
     <section>
+      <h2>Bearer token (optional)</h2>
+      <p>Paste a JWT to use it instead of signing in. It is kept in memory only (lost on reload), never stored or logged, and sent only to the local proxy.</p>
+      <div class="row">
+        <input id="jwt" type="password" autocomplete="off" spellcheck="false" placeholder="eyJ..." size="60">
+        <button id="jwtToggle" type="button">Show</button>
+        <button id="jwtClear" type="button">Clear</button>
+        <span id="jwtStatus"></span>
+      </div>
+    </section>
+    <section>
       <h2>1. Card tokens</h2>
       <p>One token per line (64 hex characters). Paste, or upload a .txt/.csv file. Tokens are trimmed and de-duplicated.</p>
       <textarea id="tokens" rows="8" spellcheck="false"></textarea>
