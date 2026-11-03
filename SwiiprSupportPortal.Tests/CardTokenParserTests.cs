@@ -1,7 +1,7 @@
-using SwiiprCardTransactionsUi;
+using SwiiprSupportPortal;
 using Xunit;
 
-namespace SwiiprCardTransactionsUi.Tests;
+namespace SwiiprSupportPortal.Tests;
 
 public class CardTokenParserTests
 {

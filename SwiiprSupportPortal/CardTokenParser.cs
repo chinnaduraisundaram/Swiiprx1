@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text;
 
-namespace SwiiprCardTransactionsUi;
+namespace SwiiprSupportPortal;
 
 public sealed record InvalidToken(int Line, string Value, string Reason);
 

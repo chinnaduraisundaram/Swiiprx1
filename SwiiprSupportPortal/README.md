@@ -1,4 +1,12 @@
-# SwiiprX card transactions export (web UI)
+# Swiipr Support Portal
+
+Multi-task airline support portal. Home page (animated take-off/landing hero) plus task pages; the first task is **Card Transactions Export** (`/card-transactions.html`).
+
+**Adding a task:** add a page under `wwwroot/`, then add an entry to `wwwroot/js/tasks.js` - it appears in the menu and on the home page. Layout lives in `js/layout.js`, styles in `css/site.css`.
+
+Transaction token column: taken from `token`, falling back to `transaction_token`/`transactionToken`, `transaction_id`, `id` (see Differences). Suggested repo name: `swiipr-airline-support-portal`.
+
+## Card transactions export
 
 Small ASP.NET Core (.NET 10) app + static front-end. You sign in with Azure AD B2C (MSAL browser, auth-code + PKCE), paste/upload card tokens, and it calls the SwiiprX platform endpoint
 `GET https://api.swiiprx.com/v2.0/cardmanagement/card/{cardToken}/transaction` (platform -> Paynetics, so your blocked IP is not involved) and exports one combined CSV.
@@ -30,7 +38,7 @@ CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`)
 ## Run
 
 ```powershell
-cd SwiiprCardTransactionsUi
+cd SwiiprSupportPortal
 npm install            # copies msal-browser.min.js into wwwroot/lib
 $env:AzureAdB2C__ClientId = "<client id>"
 $env:AzureAdB2C__Scopes   = "<full scope uri for access_as_user>"
@@ -42,8 +50,8 @@ Open http://localhost:5173/, sign in, paste tokens, **Fetch transactions**, **Do
 ## Tests
 
 ```powershell
-dotnet test          # C# tests, from the repo root (SwiiprCardTransactionsUi.sln)
-cd SwiiprCardTransactionsUi; npm test   # JS tests for bearer-token handling
+dotnet test          # C# tests, from the repo root (SwiiprSupportPortal.sln)
+cd SwiiprSupportPortal; npm test   # JS tests for bearer-token handling
 ```
 
 ## B2C requirements

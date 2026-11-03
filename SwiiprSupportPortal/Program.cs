@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using SwiiprCardTransactionsUi;
+using SwiiprSupportPortal;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient("platform", (sp, client) =>

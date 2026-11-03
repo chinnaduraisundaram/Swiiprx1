@@ -1,7 +1,7 @@
-using SwiiprCardTransactionsUi;
+using SwiiprSupportPortal;
 using Xunit;
 
-namespace SwiiprCardTransactionsUi.Tests;
+namespace SwiiprSupportPortal.Tests;
 
 public class CardTransactionsCsvTests
 {
@@ -92,6 +92,17 @@ public class CardTransactionsCsvTests
         Assert.Equal("t9", row[1]);
         Assert.Equal("2025-05-05", row[2]);
         Assert.Equal("credit", row[19]);
+    }
+
+    [Theory]
+    [InlineData("""[{"transactionToken":"tx1"}]""")]
+    [InlineData("""[{"transaction_token":"tx1"}]""")]
+    [InlineData("""{"data":{"items":[{"transactionId":"tx1"}]}}""")]
+    [InlineData("""[{"id":"tx1","token":null}]""")]
+    public void TransactionToken_AcceptsPlatformAliases(string json)
+    {
+        var row = CardTransactionsCsv.BuildRows(new CardFetchResult(Card, true, json)).Single();
+        Assert.Equal("tx1", row[1]);
     }
 
     [Fact]

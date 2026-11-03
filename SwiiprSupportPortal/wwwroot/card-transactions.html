@@ -3,22 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SwiiprX card transactions export</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Card Transactions Export - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css">
 </head>
 <body>
-  <header>
-    <h1>SwiiprX card transactions export</h1>
+  <div id="site-nav" data-active="card-transactions"></div>
+  <div class="page-head"><div class="page-head-inner">
+    <div>
+      <h1>Card Transactions Export</h1>
+      <p>Fetch card transactions from the Swiipr platform and export them as CSV.</p>
+    </div>
     <div id="auth">
       <span id="account"></span>
       <button id="signIn" type="button">Sign in</button>
       <button id="signOut" type="button" hidden>Sign out</button>
     </div>
-  </header>
+  </div></div>
 
   <div id="banner" role="alert" hidden></div>
 
-  <main>
+  <main class="page">
     <section>
       <h2>Bearer token (optional)</h2>
       <p>Paste a JWT to use it instead of signing in. It is kept in memory only (lost on reload), never stored or logged, and sent only to the local proxy.</p>
@@ -64,8 +69,10 @@
     </section>
   </main>
 
-  <script src="lib/msal-browser.min.js"></script>
-  <script type="module" src="app.js"></script>
+  <div id="site-footer"></div>
+  <script src="/lib/msal-browser.min.js"></script>
+  <script type="module" src="/js/layout.js"></script>
+  <script type="module" src="/js/card-transactions.js"></script>
 </body>
 </html>
 

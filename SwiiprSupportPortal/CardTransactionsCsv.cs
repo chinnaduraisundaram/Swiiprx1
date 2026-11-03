@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace SwiiprCardTransactionsUi;
+namespace SwiiprSupportPortal;
 
 /// <summary>Result of fetching one card's transactions (body is the raw response or an error message).</summary>
 public sealed record CardFetchResult(string CardToken, bool IsSuccess, string Response);
@@ -118,9 +118,9 @@ public static class CardTransactionsCsv
         return
         [
             cardToken,
-            GetString(item, "token"),
-            GetString(item, "created_at"),
-            GetString(item, "updated_on"),
+            GetFirst(item, "token", "transaction_token", "transaction_id", "id"),
+            GetFirst(item, "created_at", "created", "created_on", "date"),
+            GetFirst(item, "updated_on", "updated_at", "updated"),
             GetString(item, "fee"),
             GetString(item, "status"),
             GetString(item, "is_hidden"),
@@ -157,6 +157,20 @@ public static class CardTransactionsCsv
     // Values are emitted as returned (JsonElement.ToString), so dates are not reformatted - same as the reference.
     private static string GetString(JsonElement element, string name) =>
         element.ValueKind == JsonValueKind.Object && TryGet(element, name, out var value) ? value.ToString() : string.Empty;
+
+    // First alias with a non-empty value wins; used where the platform may name a field differently than Paynetics.
+    private static string GetFirst(JsonElement element, params string[] names)
+    {
+        foreach (var name in names)
+        {
+            var value = GetString(element, name);
+            if (value.Length > 0)
+            {
+                return value;
+            }
+        }
+        return string.Empty;
+    }
 
     // Exact snake_case first (as Paynetics), then case/underscore-insensitive (camelCase/PascalCase from the platform).
     private static bool TryGet(JsonElement element, string name, out JsonElement value)

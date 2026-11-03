@@ -1,9 +1,9 @@
 {
-  "name": "swiipr-card-transactions-ui",
+  "name": "swiipr-support-portal",
   "private": true,
   "type": "module",
   "version": "1.0.0",
-  "description": "Front-end dependencies (MSAL browser) for SwiiprCardTransactionsUi",
+  "description": "Front-end dependencies (MSAL browser) for SwiiprSupportPortal",
   "scripts": {
     "postinstall": "node scripts/copy-msal.mjs",
     "test": "node --test"

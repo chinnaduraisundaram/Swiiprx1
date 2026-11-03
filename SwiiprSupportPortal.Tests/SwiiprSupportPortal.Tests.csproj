@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SwiiprCardTransactionsUi\SwiiprCardTransactionsUi.csproj" />
+    <ProjectReference Include="..\SwiiprSupportPortal\SwiiprSupportPortal.csproj" />
   </ItemGroup>
 
 </Project>

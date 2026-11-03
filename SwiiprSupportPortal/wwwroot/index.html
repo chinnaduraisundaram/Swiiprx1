@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <div id="site-nav" data-active="home"></div>
+
+  <section class="hero" aria-label="Aircraft taking off and landing">
+    <div class="sun"></div>
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+    <div class="hills"></div>
+
+    <svg class="plane takeoff" viewBox="0 0 160 60" width="170" aria-hidden="true"><use href="#plane"/></svg>
+    <svg class="plane landing" viewBox="0 0 160 60" width="170" aria-hidden="true"><use href="#plane" transform="translate(160 0) scale(-1 1)"/></svg>
+
+    <div class="runway"><div class="centerline"></div><div class="lights"></div></div>
+
+    <div class="hero-copy">
+      <p class="eyebrow">Swiipr Airline Payments</p>
+      <h1>Support Portal</h1>
+      <p class="lead">Operational tools for the airline support team &mdash; from take-off to touchdown, every card transaction accounted for.</p>
+      <a class="btn primary" href="#tasks">Explore tasks</a>
+    </div>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <symbol id="plane" viewBox="0 0 160 60">
+          <path d="M14 28 L2 5 L26 5 L42 24Z" fill="#1f4aa8"/>
+          <path d="M66 34 L40 56 L78 56 L112 34Z" fill="#b9c6dd"/>
+          <path d="M8 30 Q8 21 42 21 H128 Q157 23 157 30 Q157 37 128 39 H42 Q8 39 8 30Z" fill="#ffffff" stroke="#c9d3e6" stroke-width="1"/>
+          <path d="M122 23 Q146 24 153 29 H122Z" fill="#1f4aa8" opacity=".85"/>
+          <g fill="#7fa3e6"><circle cx="50" cy="29" r="2.2"/><circle cx="62" cy="29" r="2.2"/><circle cx="74" cy="29" r="2.2"/><circle cx="86" cy="29" r="2.2"/><circle cx="98" cy="29" r="2.2"/><circle cx="110" cy="29" r="2.2"/></g>
+          <ellipse cx="82" cy="42" rx="12" ry="5" fill="#8895ad"/>
+        </symbol>
+      </defs>
+    </svg>
+  </section>
+
+  <main class="container" id="tasks">
+    <h2 class="section-title">Tasks</h2>
+    <div class="task-grid" id="task-grid"></div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script type="module" src="/js/layout.js"></script>
+  <script type="module" src="/js/home.js"></script>
+</body>
+</html>

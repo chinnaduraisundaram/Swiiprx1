@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from '../wwwroot/bearer.js';
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from '../wwwroot/js/bearer.js';
 
 const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
 const jwt = (payload) => `${b64({ alg: 'none' })}.${b64(payload)}.sig`;
