@@ -4,7 +4,7 @@ Multi-task airline support portal. Home page (animated take-off/landing hero) pl
 
 **Adding a task:** add a page under `wwwroot/`, then add an entry to `wwwroot/js/tasks.js` - it appears in the menu and on the home page. Layout lives in `js/layout.js`, styles in `css/site.css`.
 
-Transaction token column: taken from `token`, falling back to `transaction_token`/`transactionToken`, `transaction_id`, `id` (see Differences). Suggested repo name: `swiipr-airline-support-portal`.
+Transaction token column: matched case-insensitively, ignoring `_`/`-`, in this order: `token`, `transactionToken`, `transactionId`, `transactionReference`, `id`; then a nested `transaction.{id|token}`; then any property whose name contains `transaction` + (`id`|`token`); finally any property ending in `id` (excluding card/account/merchant/counterpart/user/customer). Numbers and GUIDs are accepted. If the column is still empty, use **Show raw** on a token's row in the UI to see the real field names. Items are found in `data.items`, `data`, `items`, a bare array, or the first array of objects at the root/`data`. Suggested repo name: `swiipr-airline-support-portal`.
 
 ## Card transactions export
 

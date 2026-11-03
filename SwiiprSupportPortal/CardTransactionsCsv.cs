@@ -84,7 +84,27 @@ public static class CardTransactionsCsv
             items = direct;
             return true;
         }
-        return false;
+        // Other envelopes (e.g. result.transactions, content): first array of objects found up to 3 levels deep.
+        return TryFindArray(root, 3, out items);
+
+        static bool TryFindArray(JsonElement scope, int depth, out JsonElement found)
+        {
+            found = default;
+            if (scope.ValueKind != JsonValueKind.Object || depth == 0) return false;
+            foreach (var p in scope.EnumerateObject())
+            {
+                if (p.Value.ValueKind == JsonValueKind.Array && (p.Value.GetArrayLength() == 0 || p.Value[0].ValueKind == JsonValueKind.Object))
+                {
+                    found = p.Value;
+                    return true;
+                }
+            }
+            foreach (var p in scope.EnumerateObject())
+            {
+                if (TryFindArray(p.Value, depth - 1, out found)) return true;
+            }
+            return false;
+        }
     }
 
     private static string[] RawRow(string cardToken, string raw)
@@ -118,7 +138,7 @@ public static class CardTransactionsCsv
         return
         [
             cardToken,
-            GetFirst(item, "token", "transaction_token", "transaction_id", "id"),
+            ResolveTransactionToken(item),
             GetFirst(item, "created_at", "created", "created_on", "date"),
             GetFirst(item, "updated_on", "updated_at", "updated"),
             GetString(item, "fee"),
@@ -179,10 +199,10 @@ public static class CardTransactionsCsv
         {
             return true;
         }
-        var wanted = name.Replace("_", string.Empty);
+        var wanted = Norm(name);
         foreach (var property in element.EnumerateObject())
         {
-            if (string.Equals(property.Name.Replace("_", string.Empty), wanted, StringComparison.OrdinalIgnoreCase))
+            if (Norm(property.Name) == wanted)
             {
                 value = property.Value;
                 return true;
@@ -190,6 +210,55 @@ public static class CardTransactionsCsv
         }
         value = default;
         return false;
+    }
+
+    private static string Norm(string name) =>
+        name.Replace("_", string.Empty).Replace("-", string.Empty).Replace(" ", string.Empty).ToLowerInvariant();
+
+    private static bool IsScalar(JsonElement e) =>
+        e.ValueKind is JsonValueKind.String or JsonValueKind.Number;
+
+    // Paynetics uses "token"; the platform may call it transactionId/id/etc. Tries known names, a nested "transaction" object, then any *transaction*id/token* or *id property.
+    internal static string ResolveTransactionToken(JsonElement item)
+    {
+        if (item.ValueKind != JsonValueKind.Object)
+        {
+            return string.Empty;
+        }
+        foreach (var name in new[] { "token", "transactionToken", "transactionId", "transactionReference", "id" })
+        {
+            if (TryGet(item, name, out var v) && IsScalar(v) && v.ToString().Length > 0)
+            {
+                return v.ToString();
+            }
+        }
+        if (TryGet(item, "transaction", out var nested) && nested.ValueKind == JsonValueKind.Object)
+        {
+            var inner = ResolveTransactionToken(nested);
+            if (inner.Length > 0)
+            {
+                return inner;
+            }
+        }
+        string[] excluded = ["card", "account", "merchant", "counterpart", "user", "customer"];
+        bool Allowed(string n) => !excluded.Any(n.Contains);
+        foreach (var p in item.EnumerateObject())
+        {
+            var n = Norm(p.Name);
+            if (IsScalar(p.Value) && p.Value.ToString().Length > 0 && Allowed(n) && n.Contains("transaction") && (n.Contains("id") || n.Contains("token")))
+            {
+                return p.Value.ToString();
+            }
+        }
+        foreach (var p in item.EnumerateObject())
+        {
+            var n = Norm(p.Name);
+            if (IsScalar(p.Value) && p.Value.ToString().Length > 0 && Allowed(n) && n.EndsWith("id"))
+            {
+                return p.Value.ToString();
+            }
+        }
+        return string.Empty;
     }
 
     internal static string Quote(string? value) => $"\"{(value ?? string.Empty).Replace("\"", "\"\"")}\"";

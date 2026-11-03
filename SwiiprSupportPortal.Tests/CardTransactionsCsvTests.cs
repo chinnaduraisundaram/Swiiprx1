@@ -95,6 +95,32 @@ public class CardTransactionsCsvTests
     }
 
     [Theory]
+    [InlineData("""[{"transactionId":"tx1"}]""")]
+    [InlineData("""[{"TransactionId":"tx1"}]""")]
+    [InlineData("""[{"Transaction-Id":"tx1"}]""")]
+    [InlineData("""[{"transaction_id":"tx1"}]""")]
+    [InlineData("""[{"Id":"tx1"}]""")]
+    [InlineData("""[{"transaction":{"id":"tx1"}}]""")]
+    [InlineData("""[{"cardId":"c","txnTransactionRef_id":"tx1"}]""")]
+    [InlineData("""[{"cardId":"c","paymentId":"tx1"}]""")]
+    [InlineData("""{"result":{"transactions":[{"id":"tx1"}]}}""")]
+    [InlineData("""{"transactions":[{"id":"tx1"}]}""")]
+    public void TransactionToken_TolerantMatching(string json)
+    {
+        var row = CardTransactionsCsv.BuildRows(new CardFetchResult(Card, true, json)).Single();
+        Assert.Equal("tx1", row[1]);
+    }
+
+    [Fact]
+    public void TransactionToken_NumericAndGuidIds()
+    {
+        var rows = CardTransactionsCsv.BuildRows(new CardFetchResult(Card, true,
+            """[{"id":12345},{"transactionId":"20a8d83d-22b2-462e-abf9-30d206bfa91f"}]"""));
+        Assert.Equal("12345", rows[0][1]);
+        Assert.Equal("20a8d83d-22b2-462e-abf9-30d206bfa91f", rows[1][1]);
+    }
+
+    [Theory]
     [InlineData("""[{"transactionToken":"tx1"}]""")]
     [InlineData("""[{"transaction_token":"tx1"}]""")]
     [InlineData("""{"data":{"items":[{"transactionId":"tx1"}]}}""")]

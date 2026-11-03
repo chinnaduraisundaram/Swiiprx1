@@ -265,7 +265,7 @@ $('cancelBtn').addEventListener('click', () => { cancelled = true; });
 
 function render() {
   const tbody = $('results');
-  tbody.replaceChildren(...rows.map((row) => {
+  tbody.replaceChildren(...rows.flatMap((row) => {
     const tr = document.createElement('tr');
     const cell = (text, cls) => {
       const td = document.createElement('td');
@@ -286,8 +286,26 @@ function render() {
       btn.addEventListener('click', () => download([row], `card_transactions_${row.cardToken.slice(0, 8)}`));
       td.append(btn);
     }
+    if (row.response) {
+      const raw = document.createElement('button');
+      raw.type = 'button';
+      raw.textContent = row.showRaw ? 'Hide raw' : 'Show raw';
+      raw.addEventListener('click', () => { row.showRaw = !row.showRaw; render(); });
+      td.append(' ', raw);
+    }
     tr.append(td);
-    return tr;
+    if (!row.showRaw) return [tr];
+    const detail = document.createElement('tr');
+    const dc = document.createElement('td');
+    dc.colSpan = 5;
+    const pre = document.createElement('pre');
+    pre.style.cssText = 'white-space:pre-wrap;word-break:break-all;max-height:300px;overflow:auto;margin:0';
+    let text = row.response;
+    try { text = JSON.stringify(JSON.parse(row.response), null, 2); } catch { /* show as received */ }
+    pre.textContent = text;
+    dc.append(pre);
+    detail.append(dc);
+    return [tr, detail];
   }));
   const ok = rows.filter((r) => r.status === 'success').length;
   const bad = rows.filter((r) => r.status === 'failed').length;
