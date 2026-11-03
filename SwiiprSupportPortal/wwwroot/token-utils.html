@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Token Utilities - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261104g">
+</head>
+<body>
+  <div id="site-nav" data-active="token-utils"></div>
+  <div class="page-head"><div class="page-head-inner"><div>
+    <h1>Bulk Token Utilities</h1>
+    <p>Trim, de-duplicate, sort and count token lists. Runs entirely in your browser.</p>
+  </div></div></div>
+  <main class="page">
+    <section>
+      <h2>Input</h2>
+      <textarea id="input" rows="10" spellcheck="false" placeholder="One value per line (tabs, commas, quotes from Excel are fine)"></textarea>
+      <div class="row">
+        <label><input type="checkbox" id="dedupe" checked> Remove duplicates</label>
+        <label><input type="checkbox" id="sort"> Sort A&ndash;Z</label>
+        <label><input type="checkbox" id="ci"> Ignore case when de-duplicating</label>
+      </div>
+      <div class="row" id="stats"></div>
+    </section>
+    <section>
+      <h2>Result</h2>
+      <textarea id="output" rows="10" readonly spellcheck="false"></textarea>
+      <div class="row">
+        <button id="copy" type="button">Copy</button>
+        <button id="download" type="button">Download .txt</button>
+        <button id="clear" type="button">Clear</button>
+        <span id="note"></span>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script type="module" src="/js/layout.js?v=20261104g"></script>
+  <script type="module" src="/js/token-utils.js?v=20261104g"></script>
+</body>
+</html>
