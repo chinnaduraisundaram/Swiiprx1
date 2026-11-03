@@ -2,7 +2,9 @@ import { tasks, categories, icons, quickLinks } from './tasks.js';
 
 // B2C redirects back to the configured redirect URI (the site root); forward the auth response to the page that started sign-in.
 if (/[#?&](code|error|state)=/.test(location.hash)) {
-  location.replace('/card-transactions.html' + location.hash);
+  const back = sessionStorage.getItem('swiipr.returnTo');
+  sessionStorage.removeItem('swiipr.returnTo');
+  location.replace((/^\/[\w-]+\.html$/.test(back ?? '') ? back : '/card-transactions.html') + location.hash);
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);

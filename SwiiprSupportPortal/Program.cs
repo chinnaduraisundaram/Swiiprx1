@@ -36,7 +36,7 @@ app.MapGet("/api/config", (IConfiguration config) =>
 app.MapPost("/api/tokens/parse", (ParseRequest request) => Results.Json(CardTokenParser.Parse(request.Text)));
 
 // Same-origin proxy: avoids browser CORS and forwards the user's bearer token as-is (never stored or logged).
-app.MapGet("/api/cards/{cardToken}/transactions", async (string cardToken, HttpRequest request, IHttpClientFactory factory, CancellationToken ct) =>
+static async Task<IResult> ProxyCard(string cardToken, string suffix, HttpRequest request, IHttpClientFactory factory, CancellationToken ct)
 {
     if (!CardTokenParser.IsValid(cardToken))
     {
@@ -48,7 +48,7 @@ app.MapGet("/api/cards/{cardToken}/transactions", async (string cardToken, HttpR
         return Results.Text("Missing Authorization header.", statusCode: 401);
     }
 
-    using var upstream = new HttpRequestMessage(HttpMethod.Get, $"v2.0/cardmanagement/card/{Uri.EscapeDataString(cardToken)}/transaction");
+    using var upstream = new HttpRequestMessage(HttpMethod.Get, $"v2.0/cardmanagement/card/{Uri.EscapeDataString(cardToken)}/{suffix}");
     upstream.Headers.TryAddWithoutValidation("Authorization", authorization);
     upstream.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
 
@@ -66,6 +66,21 @@ app.MapGet("/api/cards/{cardToken}/transactions", async (string cardToken, HttpR
     {
         return Results.Text($"Upstream request failed: {ex.Message}", statusCode: (int)HttpStatusCode.BadGateway);
     }
+}
+
+app.MapGet("/api/cards/{cardToken}/transactions", (string cardToken, HttpRequest request, IHttpClientFactory factory, CancellationToken ct) =>
+    ProxyCard(cardToken, "transaction", request, factory, ct));
+
+app.MapGet("/api/cards/{cardToken}/balance", (string cardToken, HttpRequest request, IHttpClientFactory factory, CancellationToken ct) =>
+    ProxyCard(cardToken, "balance", request, factory, ct));
+
+app.MapPost("/api/balance/map", (ExportItem item) =>
+    Results.Json(CardBalanceMapper.Map(new CardFetchResult(item.CardToken, item.IsSuccess, item.Response ?? string.Empty))));
+
+app.MapPost("/api/balance/export", (ExportRequest request) =>
+{
+    var results = request.Results.Select(r => new CardFetchResult(r.CardToken, r.IsSuccess, r.Response ?? string.Empty));
+    return Results.Text(CardBalanceMapper.Build(results), "text/csv; charset=utf-8");
 });
 
 app.MapPost("/api/export", (ExportRequest request) =>

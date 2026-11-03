@@ -5,6 +5,7 @@ const svg = (body) =>
 export const icons = {
   home: svg('<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
   card: svg('<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19"/><path d="M6 15h4"/>'),
+  wallet: svg('<path d="M4 7a2 2 0 0 1 2-2h12v4"/><rect x="3" y="7" width="18" height="13" rx="2.5"/><circle cx="16.5" cy="13.5" r="1.2"/>'),
   more: svg('<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>'),
   key: svg('<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9"/><path d="m16 7 3 3"/>'),
   table: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>'),
@@ -18,6 +19,8 @@ export const categories = ['Cards', 'Utilities', 'Operations'];
 export const tasks = [
   { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Cards', nav: true,
     description: 'Fetch card transactions for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
+  { id: 'card-balance', title: 'Card Status & Balance', short: 'Status & Balance', href: '/card-balance.html', icon: 'wallet', category: 'Cards', nav: true,
+    description: 'Check status, activation and balances for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
   { id: 'token-utils', title: 'Bulk Token Utilities', short: 'Token Utils', href: '/token-utils.html', icon: 'key', category: 'Utilities',
     description: 'Clean pasted token lists: trim, de-duplicate, sort, count, copy and download. Runs in your browser.', tags: ['Client-side'] },
   { id: 'csv-viewer', title: 'CSV Viewer / Cleaner', short: 'CSV Viewer', href: '/csv-viewer.html', icon: 'table', category: 'Utilities',

@@ -1,8 +1,12 @@
 const $ = (id) => document.getElementById(id);
 import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs } from './bearer.js';
 import { sessionSettings, startSessionTimer, formatMmSs } from './session.js';
+import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js';
 
-const STORAGE_KEY = 'swiipr.cardTokens';
+const BALANCE = document.body.dataset.mode === 'balance';
+const ENDPOINT = BALANCE ? 'balance' : 'transactions';
+
+const STORAGE_KEY = BALANCE ? 'swiipr.cardTokens.balance' : 'swiipr.cardTokens';
 let manualToken = ''; // memory only; never written to storage or logged
 
 let config;
@@ -110,7 +114,10 @@ function renderAuth() {
   updateButtons();
 }
 
-$('signIn').addEventListener('click', () => msalApp.loginRedirect({ scopes: config.scopes }));
+$('signIn').addEventListener('click', () => {
+  sessionStorage.setItem('swiipr.returnTo', location.pathname);
+  msalApp.loginRedirect({ scopes: config.scopes });
+});
 $('signOut').addEventListener('click', () => msalApp.logoutRedirect({ account }));
 
 function applyManualToken() {
@@ -212,7 +219,7 @@ async function fetchOne(row) {
   row.status = 'running';
   row.error = '';
   render();
-  const url = `/api/cards/${encodeURIComponent(row.cardToken)}/transactions`;
+  const url = `/api/cards/${encodeURIComponent(row.cardToken)}/${ENDPOINT}`;
   let refreshed = false;
   for (let attempt = 0; ; attempt++) {
     if (cancelled) throw new Error('Cancelled');
@@ -228,7 +235,12 @@ async function fetchOne(row) {
     const body = await res.text();
     if (res.ok) {
       row.response = body;
-      row.count = countItems(body);
+      if (BALANCE) {
+        row.balances = await mapBalance(row.cardToken, true, body);
+        row.count = row.balances.length;
+      } else {
+        row.count = countItems(body);
+      }
       return;
     }
     if (res.status === 401 && !refreshed) {
@@ -245,6 +257,15 @@ async function fetchOne(row) {
     row.response = body;
     throw new Error(`HTTP ${res.status}${body ? ': ' + body.slice(0, 300) : ''}`);
   }
+}
+
+async function mapBalance(cardToken, isSuccess, response) {
+  const res = await fetch('/api/balance/map', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cardToken, isSuccess, response }),
+  });
+  return res.json();
 }
 
 const backoff = (attempt) => Math.min(30000, 1000 * 2 ** attempt) + Math.random() * 500;
@@ -302,13 +323,13 @@ async function runQueue(queue) {
 }
 
 $('fetchBtn').addEventListener('click', () => {
-  rows = parsedValid.map((cardToken) => ({ cardToken, status: 'pending', count: '', error: '', response: '' }));
+  rows = parsedValid.map((cardToken) => ({ cardToken, status: 'pending', count: '', error: '', response: '', balances: [] }));
   render();
   runQueue(rows);
 });
 $('retryBtn').addEventListener('click', () => {
   const failed = rows.filter((r) => r.status === 'failed');
-  failed.forEach((r) => { r.status = 'pending'; r.response = ''; });
+  failed.forEach((r) => { r.status = 'pending'; r.response = ''; r.balances = []; });
   runQueue(failed);
 });
 $('cancelBtn').addEventListener('click', () => { cancelled = true; });
@@ -333,7 +354,7 @@ function render() {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = 'CSV';
-      btn.addEventListener('click', () => download([row], `card_transactions_${row.cardToken.slice(0, 8)}`));
+      btn.addEventListener('click', () => download([row], `card_${BALANCE ? 'balance' : 'transactions'}_${row.cardToken.slice(0, 8)}`));
       td.append(btn);
     }
     if (row.response) {
@@ -369,15 +390,38 @@ function render() {
   }));
   const ok = rows.filter((r) => r.status === 'success').length;
   const bad = rows.filter((r) => r.status === 'failed').length;
-  $('csvNote').textContent = rows.length ? `${ok} succeeded, ${bad} failed (failed tokens are included as a RawResponse row, like the console export)` : '';
+  if (BALANCE) renderBalance(bad);
+  $('csvNote').textContent = rows.length ? `${ok} succeeded, ${bad} failed (failed tokens are included as a RawResponse row${BALANCE ? ')' : ', like the console export)'}` : '';
   updateButtons();
+}
+
+function renderBalance(failedCount) {
+  const flat = rows.flatMap((r) => (r.status === 'success' ? r.balances : []));
+  const sum = summarize(flat, failedCount);
+  const chips = [`${sum.cards} cards checked`, ...Object.entries(sum.byStatus).map(([s, n]) => `${n} ${s}`),
+    ...Object.entries(sum.totals).map(([c, v]) => `Available ${c}: ${v.toFixed(2)}`)];
+  if (failedCount) chips.push(`${failedCount} failed`);
+  $('chips').replaceChildren(...chips.map((c) => Object.assign(document.createElement('span'), { className: 'chip', textContent: c })));
+  const table = $('balanceTable');
+  table.hidden = flat.length === 0;
+  table.tHead.innerHTML = `<tr>${BALANCE_COLUMNS.map((c) => `<th>${c}</th>`).join('')}</tr>`;
+  table.tBodies[0].replaceChildren(...flat.map((r) => {
+    const tr = document.createElement('tr');
+    if (isFlagged(r)) tr.className = 'flagged';
+    for (const c of BALANCE_COLUMNS) {
+      const td = document.createElement('td');
+      td.textContent = String(r[c.charAt(0).toLowerCase() + c.slice(1)] ?? r[c] ?? '');
+      tr.append(td);
+    }
+    return tr;
+  }));
 }
 
 async function download(selected, baseName) {
   const results = selected
     .filter((r) => r.status === 'success' || r.status === 'failed')
     .map((r) => ({ cardToken: r.cardToken, isSuccess: r.status === 'success', response: r.response || r.error }));
-  const res = await fetch('/api/export', {
+  const res = await fetch(BALANCE ? '/api/balance/export' : '/api/export', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ results }),
@@ -391,6 +435,6 @@ async function download(selected, baseName) {
   URL.revokeObjectURL(a.href);
 }
 
-$('downloadBtn').addEventListener('click', () => download(rows, 'Swiipr_CardTransactions'));
+$('downloadBtn').addEventListener('click', () => download(rows, BALANCE ? 'Swiipr_CardBalance' : 'Swiipr_CardTransactions'));
 
 init().catch((e) => banner(`Startup failed: ${e.message}`));
