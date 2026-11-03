@@ -129,7 +129,7 @@ async function parseTokens() {
   $('parseSummary').textContent = `${parsed.valid.length} valid, ${parsed.invalid.length} invalid, ${parsed.duplicates} duplicates removed`;
   $('invalidBox').hidden = parsed.invalid.length === 0;
   $('invalidSummary').textContent = `${parsed.invalid.length} invalid token(s) will be ignored`;
-  $('invalidList').textContent = parsed.invalid.join('\n');
+  $('invalidList').textContent = parsed.invalid.map((i) => `Line ${i.line ?? i.Line}: ${i.value ?? i.Value} - ${i.reason ?? i.Reason}`).join('\n');
   parsedValid = parsed.valid;
   updateButtons();
 }

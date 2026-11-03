@@ -1,40 +1,78 @@
-using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Text;
 
 namespace SwiiprCardTransactionsUi;
 
-public sealed record ParsedTokens(IReadOnlyList<string> Valid, IReadOnlyList<string> Invalid, int Duplicates);
+public sealed record InvalidToken(int Line, string Value, string Reason);
 
-public static partial class CardTokenParser
+public sealed record ParsedTokens(IReadOnlyList<string> Valid, IReadOnlyList<InvalidToken> Invalid, int Duplicates);
+
+public static class CardTokenParser
 {
-    // Paynetics card tokens are 64-char hex (SHA-256 style).
-    [GeneratedRegex("^[0-9a-fA-F]{64}$")]
-    private static partial Regex TokenFormat();
+    private static readonly char[] Separators = ['\r', '\n', '\t', ',', ';', ' ', '\u00A0', '\u2007', '\u202F'];
 
-    public static bool IsValid(string token) => TokenFormat().IsMatch(token);
+    private static readonly char[] Forbidden = ['/', '\\', '?', '#', '%'];
 
-    /// <summary>Splits on newlines (and commas/semicolons), trims, strips quotes, dedupes case-insensitively, validates format.</summary>
+    // Card tokens may be any length/format; only reject values unsafe to place in a URL path segment.
+    public static bool IsValid(string token) =>
+        token.Length > 0 && token.Length <= 512 && Explain(token) is null;
+
+    /// <summary>Removes quotes, BOM, zero-width and other invisible characters that Excel/web pastes add.</summary>
+    public static string Normalize(string raw)
+    {
+        var sb = new StringBuilder(raw.Length);
+        foreach (var c in raw)
+        {
+            var category = char.GetUnicodeCategory(c);
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control or UnicodeCategory.SpaceSeparator)
+            {
+                continue;
+            }
+            sb.Append(c);
+        }
+        return sb.ToString().Trim('"', '\'', '“', '”', '‘', '’', '{', '}');
+    }
+
+    public static string? Explain(string token)
+    {
+        if (token.Length == 0) return "Empty value.";
+        if (token.Length > 512) return "Longer than 512 characters.";
+        if (token.Any(char.IsWhiteSpace) || token.Any(char.IsControl)) return "Contains whitespace or control characters.";
+        var bad = token.IndexOfAny(Forbidden);
+        return bad >= 0 ? $"Contains the disallowed character '{token[bad]}'." : null;
+    }
+
+    /// <summary>Splits on newlines/tabs/commas/semicolons/spaces, normalises, dedupes case-insensitively, rejects only URL-unsafe values.</summary>
     public static ParsedTokens Parse(string? text)
     {
         var valid = new List<string>();
-        var invalid = new List<string>();
+        var invalid = new List<InvalidToken>();
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int duplicates = 0;
+        int line = 0;
 
-        foreach (var raw in (text ?? string.Empty).Split(['\r', '\n', ',', ';'], StringSplitOptions.None))
+        foreach (var rawLine in (text ?? string.Empty).Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
         {
-            var token = raw.Trim().Trim('"', '\'').Trim();
-            if (token.Length == 0)
+            line++;
+            foreach (var part in rawLine.Split(Separators, StringSplitOptions.RemoveEmptyEntries))
             {
-                continue;
+                var token = Normalize(part);
+                if (token.Length == 0)
+                {
+                    continue;
+                }
+                if (!seen.Add(token))
+                {
+                    duplicates++;
+                    continue;
+                }
+                var reason = Explain(token);
+                if (reason is null) valid.Add(token);
+                else invalid.Add(new InvalidToken(line, token, reason));
             }
-            if (!seen.Add(token))
-            {
-                duplicates++;
-                continue;
-            }
-            (IsValid(token) ? valid : invalid).Add(token);
         }
 
         return new ParsedTokens(valid, invalid, duplicates);
     }
 }
+

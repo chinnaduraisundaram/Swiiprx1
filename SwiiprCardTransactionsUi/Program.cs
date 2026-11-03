@@ -38,7 +38,7 @@ app.MapGet("/api/cards/{cardToken}/transactions", async (string cardToken, HttpR
 {
     if (!CardTokenParser.IsValid(cardToken))
     {
-        return Results.Text("Invalid card token format.", statusCode: 400);
+        return Results.Text("Invalid card token (must be non-empty, no whitespace, and none of / \\ ? # %).", statusCode: 400);
     }
     var authorization = request.Headers.Authorization.ToString();
     if (string.IsNullOrWhiteSpace(authorization))
