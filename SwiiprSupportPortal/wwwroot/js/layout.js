@@ -1,8 +1,8 @@
-import { tasks, home, icons } from './tasks.js';
+import { tasks, home, allTasks, icons } from './tasks.js';
 
 // Renders the shared top navigation and footer. Pages declare <div id="site-nav" data-active="..."> and <div id="site-footer">.
 function renderNav(active) {
-  const items = [home, ...tasks];
+  const items = [home, allTasks, ...tasks.filter((t) => t.nav)];
   const links = items
     .map((t) => `<a class="nav-link${t.id === active ? ' active' : ''}" href="${t.href}"${t.id === active ? ' aria-current="page"' : ''}>${icons[t.icon]}<span>${t.short}</span></a>`)
     .join('');

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runbook &amp; FAQ - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <div id="site-nav" data-active="runbook"></div>
+  <div class="page-head"><div class="page-head-inner"><div>
+    <h1>Support Runbook &amp; FAQ</h1>
+    <p>How to use the portal and what to do when the platform API misbehaves.</p>
+  </div></div></div>
+  <main class="page prose">
+    <section>
+      <h2>Using the portal</h2>
+      <ol>
+        <li>Open <a href="/card-transactions.html">Card Export</a> and sign in, or paste a bearer token into the token box (kept in memory only).</li>
+        <li>Paste card tokens (any length; one per line, Excel paste is fine) or upload a .txt/.csv file.</li>
+        <li>Click <b>Fetch transactions</b>, watch per-token status, then <b>Download CSV</b>. Use <b>Retry failed</b> for failures.</li>
+        <li>If a column looks wrong, use <b>Show raw</b> / <b>Copy raw JSON</b> on that token to see the platform response.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Token and JWT tips</h2>
+      <ul>
+        <li>A bearer token expires (usually within an hour). Use the <a href="/jwt-decoder.html">JWT Decoder</a> to check <code>exp</code>; decoding happens locally.</li>
+        <li>Paste the token without the leading <code>Bearer </code> (it is stripped if present).</li>
+        <li>Never share tokens in tickets or chat. Treat them like passwords.</li>
+        <li>Clean messy lists first with <a href="/token-utils.html">Bulk Token Utilities</a>.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Common API errors</h2>
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th><th>What to do</th></tr></thead>
+        <tbody>
+          <tr><td>401</td><td>Token missing, invalid or expired</td><td>Sign in again or paste a fresh token, then <b>Retry failed</b>.</td></tr>
+          <tr><td>403</td><td>Signed in but not allowed for this card/resource</td><td>Check your role/scope (<code>access_as_user</code>) and that the card belongs to an accessible programme.</td></tr>
+          <tr><td>404</td><td>Card token not found</td><td>Verify the token for typos or the wrong environment.</td></tr>
+          <tr><td>429</td><td>Rate limited</td><td>The portal retries with back-off automatically; lower concurrency or wait a minute, then retry.</td></tr>
+          <tr><td>5xx</td><td>Platform or upstream (Paynetics) problem</td><td>Retried automatically. If it persists, check platform status and raise with the on-call engineer.</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>FAQ</h2>
+      <p><b>Why does the CSV have a RawResponse column?</b> Failed tokens are written as a row with the card token and the raw response so nothing is silently dropped.</p>
+      <p><b>Is anything uploaded or stored?</b> No. Utilities run in your browser. Only the checklist ticks are stored (localStorage).</p>
+      <p><b>The Planned tasks do nothing?</b> Correct. They are placeholders describing future tools and are marked Planned.</p>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script type="module" src="/js/layout.js"></script>
+</body>
+</html>

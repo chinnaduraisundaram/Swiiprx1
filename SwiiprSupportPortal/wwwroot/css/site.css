@@ -119,3 +119,28 @@ td.token { font-family: Consolas, monospace; word-break: break-all; }
 .pending { color: #666; } .running { color: #0b3d91; } .success { color: #0a7a2f; } .failed { color: #b00020; }
 #banner { background: #fdecea; color: #7a0010; padding: .6rem 1.25rem; text-align: center; }
 #banner.info { background: #e8f0fe; color: #0b3d91; }
+
+/* Dashboard, badges, utilities */
+.stat-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 1rem 1.5rem; min-width: 160px; display: flex; flex-direction: column; }
+.stat strong { font-size: 2rem; color: var(--navy); }
+.stat span { color: var(--muted); }
+.stat.ok strong { color: #0a7a2f; } .stat.plan strong { color: #b26a00; }
+.cat-row, .chips { display: flex; gap: .75rem; flex-wrap: wrap; }
+.cat-chip { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: .6rem 1rem; text-decoration: none; color: var(--ink); display: flex; flex-direction: column; }
+.cat-chip:hover { border-color: var(--sky); }
+.cat-chip span { color: var(--muted); font-size: .85rem; }
+.chip { background: #eaf0fb; color: var(--blue); border-radius: 999px; padding: .45rem 1rem; text-decoration: none; font-weight: 600; }
+.chip:hover { background: #dbe6f9; }
+.cat-title { color: var(--navy); margin: 1.75rem 0 .75rem; }
+.task-top { display: flex; justify-content: space-between; align-items: center; }
+.badge { font-size: .75rem; font-weight: 700; padding: .15rem .6rem; border-radius: 999px; }
+.badge.available { background: #e3f6e9; color: #0a7a2f; }
+.badge.planned { background: #fff3dc; color: #9a5b00; }
+.task-card.is-planned { background: #fbfcfe; }
+.table-wrap { overflow: auto; max-height: 60vh; }
+pre.json { background: #f0f4fb; padding: .75rem; border-radius: 8px; overflow: auto; font-size: .9rem; margin: 0 0 1rem; }
+label.check { display: block; padding: .35rem 0; }
+.prose li, .prose p { line-height: 1.55; }
+.placeholder { opacity: .65; border-style: dashed !important; }
+select { padding: .45rem; border-radius: 8px; border: 1px solid #c8d3e8; }

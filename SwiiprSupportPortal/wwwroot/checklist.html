@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Release Checklist - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <div id="site-nav" data-active="checklist"></div>
+  <div class="page-head"><div class="page-head-inner"><div>
+    <h1>Production Release Checklist</h1>
+    <p>Ticks are saved in this browser only (localStorage). Do not type secrets or customer data here.</p>
+  </div></div></div>
+  <main class="page">
+    <section>
+      <div class="row"><progress id="progress" value="0" max="1"></progress><span id="summary"></span><button id="reset" type="button">Reset all</button></div>
+      <div id="lists"></div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script type="module" src="/js/layout.js"></script>
+  <script type="module" src="/js/checklist.js"></script>
+</body>
+</html>
