@@ -41,3 +41,5 @@ test('initials', () => {
   assert.equal(initials('Chinna'), 'CH');
   assert.equal(initials(''), 'SE');
 });
+
+test('initials for default user', () => assert.equal(initials('Chinna Dev'), 'CD'));

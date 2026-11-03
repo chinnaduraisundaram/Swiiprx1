@@ -85,3 +85,7 @@ The portal uses a shared shell (`wwwroot/js/layout.js` + `css/site.css` design t
 ### Layout smoke test
 
 `npm i --no-save playwright-core` then `node scripts/smoke.mjs chrome` (or `msedge`) with the app running. Static files are served with `Cache-Control: no-cache` and asset URLs carry `?v=<version>`; bump it in the HTML/JS imports when shipping breaking front-end changes.
+
+### Default user name
+
+The top-bar chip shows the signed-in B2C account or JWT name claim, otherwise `Portal:DefaultUserName` (default `Chinna Dev`, exposed via `/api/config`).

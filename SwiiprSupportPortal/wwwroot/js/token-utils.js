@@ -1,4 +1,4 @@
-import { cleanTokens } from './utils.js?v=20261104';
+import { cleanTokens } from './utils.js?v=20261104b';
 
 const $ = (id) => document.getElementById(id);
 let current = [];

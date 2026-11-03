@@ -34,6 +34,7 @@ app.MapGet("/api/config", (IConfiguration config) =>
         maxRetries = config.GetValue("Fetch:MaxRetries", 4),
         sessionTimeoutMinutes = config.GetValue("Session:TimeoutMinutes", 60),
         sessionWarningMinutes = config.GetValue("Session:WarningMinutes", 5),
+        defaultUserName = config.GetValue("Portal:DefaultUserName", "Chinna Dev"),
     });
 });
 

@@ -1,5 +1,5 @@
-import { tasks, categories, home, icons } from './tasks.js?v=20261104';
-import { initials } from './bearer.js?v=20261104';
+import { tasks, categories, home, icons } from './tasks.js?v=20261104b';
+import { initials } from './bearer.js?v=20261104b';
 
 // Shared application shell: sidebar (from the task registry), dark top bar, content area and footer.
 // Pages only declare <div id="site-nav" data-active="..."> and <div id="site-footer">; everything else on the page
@@ -83,7 +83,7 @@ function build() {
     <a class="skip" href="#main">Skip to content</a>
     <div class="topbar-spacer"></div>
     <span id="sessionClock" class="session-clock" role="timer" aria-live="off" hidden></span>
-    <div class="user-chip"><span class="avatar" id="userInitials" aria-hidden="true">SE</span><span id="userName">Support Engineer</span></div>`;
+    <div class="user-chip"><span class="avatar" id="userInitials" aria-hidden="true">CD</span><span id="userName">Chinna Dev</span></div>`;
   if (auth) top.insertBefore(auth, top.querySelector('.user-chip'));
 
   const main = document.createElement('div');
@@ -139,8 +139,11 @@ function wire(app) {
 build();
 
 // Used by pages that know the signed-in user.
+let defaultName = 'Chinna Dev';
+let current = '';
 export function setUser(name) {
-  const display = (name || '').trim() || 'Support Engineer';
+  current = (name || '').trim();
+  const display = current || defaultName;
   const n = document.getElementById('userName');
   const i = document.getElementById('userInitials');
   if (n) n.textContent = display;
@@ -156,3 +159,8 @@ export function setSessionClock(msLeft) {
   el.textContent = `Session ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   el.classList.toggle('warn', s <= 300);
 }
+
+// Default display name comes from Portal:DefaultUserName via /api/config; a signed-in name always wins.
+fetch('/api/config').then((r) => r.json()).then((c) => {
+  if (c.defaultUserName) { defaultName = c.defaultUserName; if (!current) setUser(''); }
+}).catch(() => {});
