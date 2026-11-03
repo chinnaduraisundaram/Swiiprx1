@@ -33,5 +33,5 @@ if (navHost) {
 
 const footerHost = document.getElementById('site-footer');
 if (footerHost) {
-  footerHost.outerHTML = `<footer class="site-footer">Swiipr Support Portal &middot; internal tooling &middot; no credentials are stored by this app</footer>`;
+  footerHost.outerHTML = `<footer class="site-footer"><strong>Designed and developed by Chinna, Support Engineer</strong><br>Swiipr Support Portal &middot; internal tooling &middot; no credentials are stored by this app</footer>`;
 }

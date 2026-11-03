@@ -8,7 +8,7 @@
   --bg: #f4f7fc;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; font-size: 19px; }
 body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0; color: var(--ink); background: var(--bg); }
 
 /* Header / nav */
@@ -77,7 +77,7 @@ body { font-family: "Segoe UI", system-ui, -apple-system, sans-serif; margin: 0;
 .btn.primary:hover { background: #eaf2ff; }
 .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
 .section-title { color: var(--navy); margin: 0 0 1rem; }
-.site-footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 1.5rem 1rem 2rem; border-top: 1px solid var(--line); background: #fff; }
+.site-footer { text-align: center; color: var(--muted); font-size: 1rem; padding: 1.5rem 1rem 2rem; border-top: 1px solid var(--line); background: #fff; }
 
 /* Task cards */
 .task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; }
@@ -111,7 +111,8 @@ button:disabled { cursor: not-allowed; opacity: .5; }
 #fetchBtn, #downloadBtn { background: var(--blue); color: #fff; border-color: var(--blue); }
 #fetchBtn:hover:not(:disabled), #downloadBtn:hover:not(:disabled) { background: var(--navy); }
 .page-head button { background: rgba(255, 255, 255, .15); color: #fff; border-color: rgba(255, 255, 255, .5); }
-table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+textarea, input, button, select { font-size: 1rem; }
 th, td { border: 1px solid var(--line); padding: .35rem .55rem; text-align: left; vertical-align: top; }
 th { background: #f0f4fb; color: var(--navy); }
 td.token { font-family: Consolas, monospace; word-break: break-all; }
