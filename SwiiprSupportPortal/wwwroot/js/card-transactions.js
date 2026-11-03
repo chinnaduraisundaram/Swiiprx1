@@ -292,6 +292,16 @@ function render() {
       raw.textContent = row.showRaw ? 'Hide raw' : 'Show raw';
       raw.addEventListener('click', () => { row.showRaw = !row.showRaw; render(); });
       td.append(' ', raw);
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.textContent = 'Copy raw JSON';
+      copy.style.fontWeight = '700';
+      copy.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(row.response); copy.textContent = 'Copied!'; }
+        catch { row.showRaw = true; render(); }
+        setTimeout(() => { copy.textContent = 'Copy raw JSON'; }, 1500);
+      });
+      td.append(' ', copy);
     }
     tr.append(td);
     if (!row.showRaw) return [tr];

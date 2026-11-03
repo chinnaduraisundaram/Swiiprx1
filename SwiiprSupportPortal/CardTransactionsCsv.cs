@@ -129,6 +129,17 @@ public static class CardTransactionsCsv
 
         string cp(string name) => hasCounterpart ? GetString(counterpart, name) : string.Empty;
 
+        var txToken = ResolveTransactionToken(item);
+        var note = string.Empty;
+        if (txToken.Length == 0)
+        {
+            txToken = ResolveFallbackToken(item, out var key);
+            if (txToken.Length > 0)
+            {
+                note = $"TransactionToken taken from fallback field '{key}' (no token/id field found)";
+            }
+        }
+
         string type = GetString(item, "type");
         if (string.Equals(type, "internal-transfer", StringComparison.OrdinalIgnoreCase))
         {
@@ -138,7 +149,7 @@ public static class CardTransactionsCsv
         return
         [
             cardToken,
-            ResolveTransactionToken(item),
+            txToken,
             GetFirst(item, "created_at", "created", "created_on", "date"),
             GetFirst(item, "updated_on", "updated_at", "updated"),
             GetString(item, "fee"),
@@ -170,7 +181,7 @@ public static class CardTransactionsCsv
             cp("currency"),
             cp("account"),
             counterpartCard,
-            string.Empty,
+            note,
         ];
     }
 
@@ -258,6 +269,21 @@ public static class CardTransactionsCsv
                 return p.Value.ToString();
             }
         }
+        return string.Empty;
+    }
+
+    // Last resort only (flagged in RawResponse): never merchant/account/balance/acquiring.card.
+    private static string ResolveFallbackToken(JsonElement item, out string key)
+    {
+        foreach (var name in new[] { "external_identifier", "external_link", "linked_transaction" })
+        {
+            if (TryGet(item, name, out var v) && IsScalar(v) && v.ToString().Length > 0)
+            {
+                key = name;
+                return v.ToString();
+            }
+        }
+        key = string.Empty;
         return string.Empty;
     }
 
