@@ -1,14 +1,16 @@
-import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104f';
-import { mountCarousel } from './carousel.js?v=20261104f';
+import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104g';
+import { mountCarousel } from './carousel.js?v=20261104g';
 
 const carouselRoot = document.getElementById('flight-carousel');
 if (carouselRoot) mountCarousel(carouselRoot);
 
-const pilotImg = document.querySelector('#pilot-card img');
-if (pilotImg) {
-  const useFallback = () => { pilotImg.hidden = true; document.querySelector('#pilot-card .pilot-fallback').hidden = false; };
-  pilotImg.addEventListener('error', useFallback);
-  if (pilotImg.complete && pilotImg.naturalWidth === 0) useFallback();
+for (const card of document.querySelectorAll('.pilot-card')) {
+  const img = card.querySelector('img');
+  const fb = card.querySelector('.pilot-fallback');
+  if (!img || !fb) continue;
+  const useFallback = () => { img.hidden = true; fb.hidden = false; };
+  img.addEventListener('error', useFallback);
+  if (img.complete && img.naturalWidth === 0) useFallback();
 }
 
 // B2C redirects back to the configured redirect URI (the site root); forward the auth response to the page that started sign-in.

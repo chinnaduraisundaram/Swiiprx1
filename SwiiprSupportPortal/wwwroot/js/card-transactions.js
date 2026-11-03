@@ -1,7 +1,7 @@
 const $ = (id) => document.getElementById(id);
-import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js?v=20261104f';
-import { setUser, session } from './layout.js?v=20261104f';
-import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js?v=20261104f';
+import { normalizeBearerToken, looksLikeJwt, jwtExpiryMs, jwtDisplayName } from './bearer.js?v=20261104g';
+import { setUser, session } from './layout.js?v=20261104g';
+import { COLUMNS as BALANCE_COLUMNS, isFlagged, summarize } from './balance.js?v=20261104g';
 
 const BALANCE = document.body.dataset.mode === 'balance';
 const ENDPOINT = BALANCE ? 'balance' : 'transactions';

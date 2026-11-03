@@ -195,3 +195,10 @@ a.task-card:hover { border-top-color: var(--teal); box-shadow: 0 3px 10px rgba(3
 .pilot-card figcaption span{font-size:.7rem;opacity:.9}
 .pilot-card figcaption a{color:#cfe8f7}
 @media (max-width:768px){.pilot-card{aspect-ratio:16/9}}
+
+/* Pilot + cabin crew side by side */
+.photo-row{display:grid;grid-template-columns:1.7fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.photo-row .pilot-card{margin:0;aspect-ratio:auto}
+.photo-row .crew-card{aspect-ratio:4/3}
+.photo-row .pilot-card img,.photo-row .pilot-card .pilot-fallback{position:absolute;inset:0}
+@media (max-width:900px){.photo-row{grid-template-columns:1fr}.photo-row .pilot-card{aspect-ratio:16/9}.photo-row .crew-card{aspect-ratio:4/3}}

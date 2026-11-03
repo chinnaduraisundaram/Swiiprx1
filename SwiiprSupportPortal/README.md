@@ -99,3 +99,5 @@ The Dashboard shows a rotating banner (`wwwroot/js/carousel.js`) of four **origi
 
 ## Dashboard pilot photo
 `wwwroot/assets/img/pilot.jpg` is a public-domain photo (San Diego Air & Space Museum Archives via Wikimedia Commons; see `wwwroot/assets/img/CREDITS.md`). Drop your own image at that path (about 1600x640, under 250 KB) to replace it; if the file is missing the dashboard falls back to an SVG illustration. The base font is now 20px (`html { font-size: 20px }` in `site.css`) and the sidebar is 290px wide.
+
+The Dashboard also shows `wwwroot/assets/img/cabin-crew.jpg` ("Welcome aboard", CC BY 4.0, U. A. Saarinen / Finnish Heritage Agency) beside the pilot photo; see `CREDITS.md`. Replace the file to use your own; an SVG is shown when it is missing.
