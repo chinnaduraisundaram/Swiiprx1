@@ -19,7 +19,7 @@ export const categories = ['Cards', 'Utilities', 'Operations'];
 export const tasks = [
   { id: 'card-transactions', title: 'Card Transactions Export', short: 'Card Export', href: '/card-transactions.html', icon: 'card', category: 'Cards', nav: true,
     description: 'Fetch card transactions for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
-  { id: 'card-balance', title: 'Card Status & Balance', short: 'Status & Balance', href: '/card-balance.html', icon: 'wallet', category: 'Cards', nav: true,
+  { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Cards', nav: true,
     description: 'Check status, activation and balances for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
   { id: 'token-utils', title: 'Bulk Token Utilities', short: 'Token Utils', href: '/token-utils.html', icon: 'key', category: 'Utilities',
     description: 'Clean pasted token lists: trim, de-duplicate, sort, count, copy and download. Runs in your browser.', tags: ['Client-side'] },

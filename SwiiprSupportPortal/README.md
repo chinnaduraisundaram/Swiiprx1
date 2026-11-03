@@ -15,9 +15,9 @@ Small ASP.NET Core (.NET 10) app + static front-end. You sign in with Azure AD B
 
 CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`): same 34 columns/order, every value double-quoted with `"` doubled, `internal-transfer` mapped to `Load`/`Unload` by comparing the counterpart card to the card token, dates/values emitted exactly as returned (no reformatting), and a row with only `CardToken` + `RawResponse` for failed cards or responses without items.
 
-## Card status & balance
+## Status and Balance Check
 
-`/card-balance.html` (nav: Status & Balance) calls `GET https://api.swiiprx.com/v2.0/cardmanagement/card/{cardToken}/balance` through the same-origin proxy `/api/cards/{cardToken}/balance` (same auth, token list, concurrency, retries/backoff and Retry-After handling as the transactions export). One CSV row per balance (a card with no balances gets one row with empty balance columns; failed fetches get a `RawResponse` row). Header: `CardToken,Status,IsActivated,IsOtpSmsEnabled,Currency,Available,Blocked,BalanceToken,ExternalIdentifier,RawResponse`, all values quoted. Field names are matched case-insensitively ignoring `_`/`-`, and the `data` envelope is optional. The page shows chips (cards per status, available per currency) and highlights non-active cards or `blocked > 0`. Mapper: `CardBalanceMapper.cs`; helpers: `wwwroot/js/balance.js`.
+`/card-balance.html` (nav: Status and Balance Check) calls `GET https://api.swiiprx.com/v2.0/cardmanagement/card/{cardToken}/balance` through the same-origin proxy `/api/cards/{cardToken}/balance` (same auth, token list, concurrency, retries/backoff and Retry-After handling as the transactions export). One CSV row per balance (a card with no balances gets one row with empty balance columns; failed fetches get a `RawResponse` row). Header: `CardToken,Status,IsActivated,IsOtpSmsEnabled,Currency,Available,Blocked,BalanceToken,ExternalIdentifier,RawResponse`, all values quoted. Field names are matched case-insensitively ignoring `_`/`-`, and the `data` envelope is optional. The page shows chips (cards per status, available per currency) and highlights non-active cards or `blocked > 0`. Mapper: `CardBalanceMapper.cs`; helpers: `wwwroot/js/balance.js`.
 
 ## Design
 
