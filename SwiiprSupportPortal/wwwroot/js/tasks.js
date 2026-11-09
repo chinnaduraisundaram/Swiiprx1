@@ -21,6 +21,8 @@ export const tasks = [
     description: 'Fetch card transactions for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
   { id: 'card-balance', title: 'Status and Balance Check', short: 'Status and Balance Check', href: '/card-balance.html', icon: 'wallet', category: 'Card Management',
     description: 'Check status, activation and balances for a list of card tokens from the Swiipr platform and download one CSV.', tags: ['Platform API', 'CSV'] },
+  { id: 'card-groups', title: 'Card Groups Update', short: 'Card Groups Update', href: '/card-groups.html', icon: 'card', category: 'Card Management',
+    description: 'Reset card groups on Paynetics for a list of card tokens (dry run, confirmation, before/after CSV). Credentials stay on the server.', tags: ['Paynetics', 'CSV'] },
   { id: 'token-utils', title: 'Bulk Token Utilities', short: 'Token Utils', href: '/token-utils.html', icon: 'key', category: 'Utilities',
     description: 'Clean pasted token lists: trim, de-duplicate, sort, count, copy and download. Runs in your browser.', tags: ['Client-side'] },
   { id: 'csv-viewer', title: 'CSV Viewer / Cleaner', short: 'CSV Viewer', href: '/csv-viewer.html', icon: 'table', category: 'Utilities',

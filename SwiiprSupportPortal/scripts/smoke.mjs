@@ -5,7 +5,7 @@ import { mkdirSync } from 'node:fs';
 
 const [browserArg = 'msedge', base = 'http://localhost:5173', outDir] = process.argv.slice(2);
 const exe = { chrome: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', msedge: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe' }[browserArg] ?? browserArg;
-const pages = ['', 'card-transactions.html', 'card-balance.html', 'token-utils.html', 'csv-viewer.html', 'jwt-decoder.html', 'checklist.html', 'runbook.html'];
+const pages = ['', 'card-transactions.html', 'card-balance.html', 'card-groups.html', 'token-utils.html', 'csv-viewer.html', 'jwt-decoder.html', 'checklist.html', 'runbook.html'];
 if (outDir) mkdirSync(outDir, { recursive: true });
 
 const browser = await chromium.launch({ executablePath: exe });

@@ -1,5 +1,5 @@
-import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261104g';
-import { mountCarousel } from './carousel.js?v=20261104g';
+import { tasks, categories, icons, quickLinks } from './tasks.js?v=20261110b';
+import { mountCarousel } from './carousel.js?v=20261110b';
 
 const carouselRoot = document.getElementById('flight-carousel');
 if (carouselRoot) mountCarousel(carouselRoot);

@@ -19,6 +19,28 @@ CSV output replicates `PayneticsCardTransactionsExport` (`SwiiprProdSupportApp`)
 
 `/card-balance.html` (nav: Status and Balance Check) calls `GET https://api.swiiprx.com/v2.0/cardmanagement/card/{cardToken}/balance` through the same-origin proxy `/api/cards/{cardToken}/balance` (same auth, token list, concurrency, retries/backoff and Retry-After handling as the transactions export). One CSV row per balance (a card with no balances gets one row with empty balance columns; failed fetches get a `RawResponse` row). Header: `CardToken,Status,IsActivated,IsOtpSmsEnabled,Currency,Available,Blocked,BalanceToken,ExternalIdentifier,RawResponse`, all values quoted. Field names are matched case-insensitively ignoring `_`/`-`, and the `data` envelope is optional. The page shows chips (cards per status, available per currency) and highlights non-active cards or `blocked > 0`. Mapper: `CardBalanceMapper.cs`; helpers: `wwwroot/js/balance.js`.
 
+## Card Groups Update
+
+Menu entry **Card Groups Update** (`/card-groups.html`) resets the card groups of a pasted/uploaded token list on Paynetics. Per token the server does `GET {BaseUrl}/v2/cards/{token}/groups`, then `PUT` the same URL with `{"usage":"","fees":"","schedule_fees":"","web_service_fees":"","limits":"","linkage":"","mcc":""}`, then `GET` again. A card is **skipped** when a response body contains `11000`, and **failed** on any non-2xx (the PUT is not attempted if the first GET fails). The CSV has `CardToken, Status, Message, DryRun, BeforeGroups, UpdateResponse, AfterGroups`.
+
+Requests are signed server-side (`x-api-key`, `x-timestamp`, `x-hash` = lowercase hex HMAC-SHA256 of `apiKey + timestamp + "card_groups" + payload` keyed with the client secret). The browser never sees the key, secret or hash, and nothing is logged. Credentials come only from configuration, never from files in the repo:
+
+| Setting | Purpose |
+| --- | --- |
+| `Paynetics:BaseUrl` | defaults to `https://api.paynetics.net` |
+| `Paynetics:ApiKey` | your Paynetics API key (placeholder: `<your-api-key>`) |
+| `Paynetics:ClientSecret` | your Paynetics client secret (placeholder: `<your-client-secret>`) |
+
+```powershell
+dotnet user-secrets set "Paynetics:ApiKey" "<your-api-key>" --project SwiiprSupportPortal
+dotnet user-secrets set "Paynetics:ClientSecret" "<your-client-secret>" --project SwiiprSupportPortal
+# or environment variables: Paynetics__ApiKey, Paynetics__ClientSecret, Paynetics__BaseUrl
+```
+
+Alternatively paste them into the **Paynetics configuration** box on the page (Base URL, API key, masked client secret, optional Show toggle, Clear button). They stay in the page's memory only (never localStorage/sessionStorage, gone on refresh), are sent only to this server with each request, take precedence over server configuration when filled in, and are never stored, logged or echoed back. The base URL must be https. The status chip shows "Credentials set" or "Not set" without revealing values.
+
+If neither is set, the page shows a "not configured" message and cannot run. Because this mutates cards, **Dry run** (GET only) is on by default, and a real run requires ticking an explicit confirmation that shows the token count. Concurrency is limited to 3. Failed tokens can be re-run with **Retry failed**.
+
 ## Design
 
 - `wwwroot/` - vanilla JS UI. MSAL handles login, token cache (sessionStorage) and silent renewal (`acquireTokenSilent` before every request; one forced refresh on 401). If silent renewal needs interaction, you are told to sign in again and use **Retry failed**.

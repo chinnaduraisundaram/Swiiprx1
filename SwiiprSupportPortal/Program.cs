@@ -4,6 +4,22 @@ using System.Text.Json;
 using SwiiprSupportPortal;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>(optional: true);
+builder.Services.AddSingleton(sp =>
+{
+    var c = sp.GetRequiredService<IConfiguration>().GetSection("Paynetics");
+    return new PayneticsOptions
+    {
+        BaseUrl = string.IsNullOrWhiteSpace(c["BaseUrl"]) ? "https://api.paynetics.net" : c["BaseUrl"]!,
+        ApiKey = c["ApiKey"],
+        ClientSecret = c["ClientSecret"],
+    };
+});
+builder.Services.AddHttpClient("paynetics", (sp, client) =>
+{
+    client.BaseAddress = new Uri(sp.GetRequiredService<PayneticsOptions>().BaseUrl.TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(60);
+});
 builder.Services.AddHttpClient("platform", (sp, client) =>
 {
     var baseUrl = sp.GetRequiredService<IConfiguration>()["PlatformApi:BaseUrl"] ?? "https://api.swiiprx.com";
@@ -95,8 +111,34 @@ app.MapPost("/api/export", (ExportRequest request) =>
     return Results.Text(csv, "text/csv; charset=utf-8");
 });
 
+app.MapGet("/api/card-groups/status", (PayneticsOptions o) => Results.Json(new { configured = o.IsConfigured }));
+
+// Mutating: a real update requires confirm=true; dryRun only performs the GET.
+// Credentials pasted in the page (per request, same origin) take precedence over server configuration and are never echoed or logged.
+app.MapPost("/api/card-groups/process", async (CardGroupsRequest req, PayneticsOptions server, IHttpClientFactory factory, CancellationToken ct) =>
+{
+    var o = PayneticsOptions.Merge(server, req.BaseUrl, req.ApiKey, req.ClientSecret);
+    if (!o.IsConfigured)
+    {
+        return Results.Text("Paynetics credentials are not configured. Paste them in the configuration box or set Paynetics:ApiKey / Paynetics:ClientSecret (see the README).", statusCode: 503);
+    }
+    if (!Uri.TryCreate(o.BaseUrl, UriKind.Absolute, out var baseUri) || baseUri.Scheme != Uri.UriSchemeHttps)
+    {
+        return Results.Text("Base URL must be an absolute https URL.", statusCode: 400);
+    }
+    if (!req.DryRun && !req.Confirm)
+    {
+        return Results.Text("Confirmation required for a real update.", statusCode: 400);
+    }
+    var token = CardTokenParser.Normalize(req.CardToken ?? string.Empty);
+    var http = factory.CreateClient("paynetics");
+    http.BaseAddress = new Uri(o.BaseUrl.TrimEnd('/') + "/");
+    var result = await new CardGroupsUpdater(http, o).ProcessAsync(token, req.DryRun, ct);
+    return Results.Json(result);
+});
 app.Run();
 
+internal sealed record CardGroupsRequest(string? CardToken, bool DryRun, bool Confirm, string? BaseUrl = null, string? ApiKey = null, string? ClientSecret = null);
 internal sealed record ParseRequest(string? Text);
 internal sealed record ExportItem(string CardToken, bool IsSuccess, string? Response);
 internal sealed record ExportRequest(List<ExportItem> Results);

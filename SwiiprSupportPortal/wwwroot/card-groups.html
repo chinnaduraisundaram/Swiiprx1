@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Card Groups Update - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261110b">
+</head>
+<body>
+  <div id="site-nav" data-active="card-groups"></div>
+  <div class="page-head"><div class="page-head-inner">
+    <div>
+      <h1>Card Groups Update</h1>
+      <p>Reset card groups for a list of card tokens on Paynetics (via the local server) and export the before/after as CSV.</p>
+    </div>
+  </div></div>
+
+  <div id="banner" role="alert" hidden></div>
+
+  <main class="page">
+    <section>
+      <h2>Paynetics configuration</h2>
+      <p>Paste your Paynetics credentials. They are kept in this page's memory only (lost on refresh or when the tab closes), sent only to this server per request over the same origin, and never stored, logged or shown again. If left empty, the server's own configuration is used.</p>
+      <div class="row"><label for="cfgBase">Base URL</label> <input id="cfgBase" type="url" placeholder="https://api.paynetics.net" autocomplete="off" spellcheck="false"></div>
+      <div class="row"><label for="cfgKey">API key</label> <input id="cfgKey" type="password" autocomplete="off" spellcheck="false"></div>
+      <div class="row"><label for="cfgSecret">Client secret</label> <input id="cfgSecret" type="password" autocomplete="off" spellcheck="false"></div>
+      <div class="row">
+        <label><input type="checkbox" id="cfgShow"> Show</label>
+        <button id="cfgClear" type="button">Clear</button>
+        <span id="cfgStatus" class="chip" role="status">Not set</span>
+      </div>
+    </section>
+
+    <section>
+      <h2>1. Card tokens</h2>
+      <p>One token per line. Paste, or upload a .txt/.csv file. Tokens are trimmed and de-duplicated. This page calls Paynetics through the server; no sign-in is needed and credentials never reach the browser.</p>
+      <textarea id="tokens" rows="8" spellcheck="false"></textarea>
+      <div class="row">
+        <input id="file" type="file" accept=".txt,.csv,text/plain">
+        <span id="parseSummary"></span>
+      </div>
+      <details id="invalidBox" hidden><summary id="invalidSummary"></summary><pre id="invalidList"></pre></details>
+    </section>
+
+    <section>
+      <h2>2. Run</h2>
+      <div class="row"><label><input type="checkbox" id="dryRun" checked> Dry run (only read the current groups, change nothing)</label></div>
+      <div class="alert" role="note"><span id="confirmText"></span></div>
+      <div class="row" id="confirmWrap" hidden><label><input type="checkbox" id="confirm"> I confirm I want to update these cards on Paynetics.</label></div>
+      <div class="row">
+        <button id="runBtn" type="button" disabled>Run dry run (GET only)</button>
+        <button id="cancelBtn" type="button" disabled>Cancel</button>
+        <button id="retryBtn" type="button">Retry failed</button>
+        <progress id="progress" value="0" max="1"></progress>
+        <span id="progressText"></span>
+      </div>
+      <p>Cards are skipped when the GET or PUT response contains error 11000, and the PUT is not attempted when the first GET fails.</p>
+    </section>
+
+    <section>
+      <h2>3. Results</h2>
+      <div class="row">
+        <button id="downloadBtn" type="button" disabled>Download CSV</button>
+      </div>
+      <div id="chips" class="row"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Card token</th><th>Status</th><th>Message</th><th>Groups</th></tr></thead>
+          <tbody id="results"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script type="module" src="/js/layout.js?v=20261110b"></script>
+  <script type="module" src="/js/card-groups-page.js?v=20261110b"></script>
+</body>
+</html>

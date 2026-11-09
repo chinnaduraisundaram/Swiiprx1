@@ -1,7 +1,7 @@
-import { tasks, categories, home, icons } from './tasks.js?v=20261104g';
-import { initials } from './bearer.js?v=20261104g';
-import { evaluateSession, sessionSettings, formatMmSs } from './session.js?v=20261104g';
-import { startSession, loadSession, extendSession, updateSession, clearSession, wipeAll } from './session-store.js?v=20261104g';
+import { tasks, categories, home, icons } from './tasks.js?v=20261110b';
+import { initials } from './bearer.js?v=20261110b';
+import { evaluateSession, sessionSettings, formatMmSs } from './session.js?v=20261110b';
+import { startSession, loadSession, extendSession, updateSession, clearSession, wipeAll } from './session-store.js?v=20261110b';
 
 // Shared application shell: sidebar (from the task registry), dark top bar, content area and footer.
 // Pages only declare <div id="site-nav" data-active="..."> and <div id="site-footer">; everything else on the page
