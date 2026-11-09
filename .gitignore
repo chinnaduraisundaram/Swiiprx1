@@ -1,0 +1,7 @@
+bin/
+obj/
+node_modules/
+wwwroot/lib/
+*.user
+appsettings.Local.json
+appsettings.Development.json

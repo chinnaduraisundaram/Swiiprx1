@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Status and Balance Check - Swiipr Support Portal</title>
+  <link rel="icon" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/site.css?v=20261110b">
+</head>
+<body data-mode="balance">
+  <div id="site-nav" data-active="card-balance"></div>
+  <div class="page-head"><div class="page-head-inner">
+    <div>
+      <h1>Status and Balance Check</h1>
+      <p>Check card status and balances from the Swiipr platform and export them as CSV.</p>
+    </div>
+    <div id="auth">
+      <span id="account"></span>
+      <button id="signIn" type="button">Sign in</button>
+      <button id="signOut" type="button" hidden>Sign out</button>
+    </div>
+  </div></div>
+
+  <div id="banner" role="alert" hidden></div>
+
+  <main class="page">
+    <section>
+      <h2>Bearer token (optional)</h2>
+      <p>Paste a JWT to use it instead of signing in. It is kept in this tab's sessionStorage for the session window (survives refresh and page navigation, cleared when the tab closes, on expiry or on Clear), never logged, and sent only to the local proxy.</p>
+      <div class="row">
+        <input id="jwt" type="password" autocomplete="off" spellcheck="false" placeholder="eyJ..." size="60">
+        <button id="jwtToggle" type="button">Show</button>
+        <button id="jwtClear" type="button">Clear</button>
+        <span id="jwtStatus"></span>
+      </div>
+    </section>
+    <section>
+      <h2>1. Card tokens</h2>
+      <p>One token per line (any length; tabs, commas and quotes from Excel are fine). Paste, or upload a .txt/.csv file. Tokens are trimmed and de-duplicated.</p>
+      <textarea id="tokens" rows="8" spellcheck="false"></textarea>
+      <div class="row">
+        <input id="file" type="file" accept=".txt,.csv,text/plain">
+        <span id="parseSummary"></span>
+      </div>
+      <details id="invalidBox" hidden><summary id="invalidSummary"></summary><pre id="invalidList"></pre></details>
+    </section>
+
+    <section>
+      <h2>2. Fetch</h2>
+      <div class="row">
+        <button id="fetchBtn" type="button" disabled>Check status &amp; balance</button>
+        <button id="cancelBtn" type="button" disabled>Cancel</button>
+        <button id="retryBtn" type="button" disabled>Retry failed</button>
+        <progress id="progress" value="0" max="1"></progress>
+        <span id="progressText"></span>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Results</h2>
+      <div class="row">
+        <button id="downloadBtn" type="button" disabled>Download CSV</button>
+        <span id="csvNote"></span>
+      </div>
+      <div id="chips" class="row"></div>
+      <div class="table-wrap"><table id="balanceTable" hidden><thead></thead><tbody></tbody></table></div>
+      <table>
+        <thead><tr><th>Card token</th><th>Fetch</th><th>Balances</th><th>Error</th><th></th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/lib/msal-browser.min.js"></script>
+  <script type="module" src="/js/layout.js?v=20261110b"></script>
+  <script type="module" src="/js/card-transactions.js?v=20261110b"></script>
+</body>
+</html>
+
